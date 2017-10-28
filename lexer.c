@@ -52,8 +52,16 @@ static char advance(lexer* l)
     }
 }
 
+static void skip_whitespace(lexer *l)
+{
+    if (isspace(currchar(l))) {
+	advance(l);
+    }
+}
+
 static token *readnext(lexer* l)
 {
+    skip_whitespace(l);
     token *t = NULL;
     char c = currchar(l);
     if (c == '\0')
@@ -68,12 +76,9 @@ static token *readnext(lexer* l)
 
 token *lexer_peek(lexer* l)
 {
-    if (l->currtok == NULL) {
+    if (l->currtok == NULL)
 	l->currtok = readnext(l);
-	return l->currtok;
-    } else {
-	return l->currtok;
-    }
+    return l->currtok;
 }
 
 token *lexer_next(lexer* l)

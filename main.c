@@ -18,9 +18,8 @@ int main(void)
 	while (!lexer_eof(l)) {
 	    token *t = lexer_next(l);
 	    printf("%s\n", token_tostr(t));
-	    free(t);
+	    token_delete(t);
 	}
-
 
 	lexer_delete(l);
     }
