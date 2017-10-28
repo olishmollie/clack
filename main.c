@@ -4,7 +4,8 @@
 #include <ctype.h>
 #include <editline/readline.h>
 
-#include "istream.h"
+#include "token.h"
+#include "lexer.h"
 
 int main(void)
 {
@@ -12,13 +13,16 @@ int main(void)
 	char *input = readline(">> ");
 	add_history(input);
 
-	istream *is = istream_new(input);
+	lexer *l = lexer_new(input);
 
-	while (!istream_eof(is)) {
-	    printf("%c\n", istream_next(is));
+	while (!lexer_eof(l)) {
+	    token *t = lexer_next(l);
+	    printf("%s\n", token_tostr(t));
+	    free(t);
 	}
 
-	istream_delete(is);
+
+	lexer_delete(l);
     }
 
     return 0;

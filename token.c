@@ -1,29 +1,37 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "token.h"
 
-enum toktype {
-    NUMBER, PLUS, MINUS, MULT, DIV,
-    LPAREN, RPAREN, END
-};
-
 struct token_t {
     toktype type;
-    void* value;
+    int value;
 };
 
-token *token_new(toktype type)
+token *token_new(toktype type, int value)
 {
     token *t = malloc(sizeof(token));
     if (t) {
 	t->type = type;
-	t->value = NULL;
+	t->value = value;
     }
     return t;
 }
 
-void token_setvalue(token *t, void* value)
+toktype token_gettype(token* t)
+{
+    return t->type;
+}
+
+char* token_tostr(token *t)
+{
+    char* buf = malloc(150*sizeof(char));
+    snprintf(buf, 150, "Token { type: %d, value: %d }", t->type, t->value);
+    return buf;
+}
+
+void token_delete(token* t)
 {
     if (t)
-	t->value = value;
+	free(t);
 }
