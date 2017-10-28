@@ -8,7 +8,7 @@ typedef enum toktype {
 
 typedef struct token_t token;
 
-token *token_new(toktype, int);
+token *token_new(toktype, int, char*);
 toktype token_gettype(token*);
 char* token_tostr(token*);
 

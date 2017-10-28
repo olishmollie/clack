@@ -44,8 +44,10 @@ static char advance(lexer* l)
 {
     if (l->pos < l->size) {
 	char next = l->input[l->pos++];
-	if (next == '\n')
+	l->col++;
+	if (next == '\n') {
 	    l->col = 0; l->line++;
+	}
 	return next;
     } else {
 	return '\0';
@@ -93,19 +95,22 @@ static toktype parentype(c)
 static char expect(lexer* l, int(*predicate)(int))
 {
     char c = currchar(l);
-    if (predicate(c))
+    if (predicate(c)) {
 	return advance(l);
-    else if (isspace(c) || c == '\0')
+    }
+    else if (isspace(c) || c == '\0') {
 	return 0;
-    else
+    }
+    else {
 	// TODO: Error handling
 	return -1;
+    }
 }
 
-static token *lexer_throw(lexer *l)
+static token *lexer_throw(lexer *l, char *msg)
 {
     l->pos = l->size; /* force eof */
-    return token_new(ERR, 0);
+    return token_new(ERR, 0, msg);
 }
 
 static token *readdigit(lexer *l)
@@ -114,14 +119,16 @@ static token *readdigit(lexer *l)
     int i = 0, val = 0;
     char c = expect(l, &isdigit);
     while (isdigit(c)) {
-	char s[2] = {c, '\0'};
 	val *= (10 * (i + 1));
 	val += c - '0';
 	c = expect(l, &isdigit);
-	if (c == -1)
-	    return lexer_throw(l);
+	if (c == -1) {
+	    char *msg = malloc(MAXBUFSIZE*sizeof(char));
+	    snprintf(msg, MAXBUFSIZE, "Unexpected input (%d:%d)", l->line, l->col);
+	    return lexer_throw(l, msg);
+	}
     }
-    t = token_new(NUMBER, val);
+    t = token_new(NUMBER, val, NULL);
     return t;
 }
 
@@ -131,18 +138,18 @@ static token *readnext(lexer* l)
     token *t = NULL;
     char c = currchar(l);
     if (c == '\0') {
-	t = token_new(END, 0);
+	t = token_new(END, 0, NULL);
     }
     else if (isdigit(c)) {
 	return readdigit(l);
     }
     else if (isop(c)) {
 	char a = advance(l);
-	t = token_new(optype(a), 0);
+	t = token_new(optype(a), 0, NULL);
     }
     else if (isparen(c)) {
 	char a = advance(l);
-	t = token_new(parentype(a), 0);
+	t = token_new(parentype(a), 0, NULL);
     }
 
     return t;
