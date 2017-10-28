@@ -90,6 +90,41 @@ static toktype parentype(c)
     }
 }
 
+static char expect(lexer* l, int(*predicate)(int))
+{
+    char c = currchar(l);
+    if (predicate(c))
+	return advance(l);
+    else if (isspace(c) || c == '\0')
+	return 0;
+    else
+	// TODO: Error handling
+	return -1;
+}
+
+static token *lexer_throw(lexer *l)
+{
+    l->pos = l->size; /* force eof */
+    return token_new(ERR, 0);
+}
+
+static token *readdigit(lexer *l)
+{
+    token *t;
+    int i = 0, val = 0;
+    char c = expect(l, &isdigit);
+    while (isdigit(c)) {
+	char s[2] = {c, '\0'};
+	val *= (10 * (i + 1));
+	val += c - '0';
+	c = expect(l, &isdigit);
+	if (c == -1)
+	    return lexer_throw(l);
+    }
+    t = token_new(NUMBER, val);
+    return t;
+}
+
 static token *readnext(lexer* l)
 {
     skip_whitespace(l);
@@ -99,9 +134,7 @@ static token *readnext(lexer* l)
 	t = token_new(END, 0);
     }
     else if (isdigit(c)) {
-	char a = advance(l);
-	int val = a - '0';
-	t = token_new(NUMBER, val);
+	return readdigit(l);
     }
     else if (isop(c)) {
 	char a = advance(l);
@@ -125,13 +158,15 @@ token *lexer_peek(lexer* l)
 token *lexer_next(lexer* l)
 {
     token *tmp = l->currtok;
-    l->currtok = readnext(l);
+    if (!tmp)
+	tmp = readnext(l);
+    l->currtok = NULL;
     return tmp;
 }
 
 int lexer_eof(lexer* l)
 {
-    return token_gettype(lexer_peek(l)) == END;
+    return l->pos >= l->size;
 }
 
 void lexer_delete(lexer *l)

@@ -3,7 +3,7 @@
 
 typedef enum toktype {
     NUMBER, PLUS, MINUS, TIMES, DIVIDE,
-    LPAREN, RPAREN, END
+    LPAREN, RPAREN, ERR, END
 } toktype;
 
 typedef struct token_t token;

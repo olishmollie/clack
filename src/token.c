@@ -23,9 +23,9 @@ toktype token_gettype(token* t)
     return t->type;
 }
 
-char* token_tostr(token *t)
+char *token_tostr(token *t)
 {
-    char* buf = malloc(150*sizeof(char));
+    char* buf = malloc(200*sizeof(char));
     snprintf(buf, 150, "Token { type: %d, value: %d }", t->type, t->value);
     return buf;
 }
