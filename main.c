@@ -4,13 +4,21 @@
 #include <ctype.h>
 #include <editline/readline.h>
 
+#include "istream.h"
+
 int main(void)
 {
     while (1) {
 	char *input = readline(">> ");
 	add_history(input);
-	printf("%s\n", input);
-	free(input);
+
+	istream *is = istream_new(input);
+
+	while (!istream_eof(is)) {
+	    printf("%c\n", istream_next(is));
+	}
+
+	istream_delete(is);
     }
 
     return 0;
