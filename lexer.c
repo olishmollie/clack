@@ -76,22 +76,42 @@ static toktype optype(c)
     }
 }
 
+static int isparen(c)
+{
+    return c == '(' || c == ')';
+}
+
+static toktype parentype(c)
+{
+    switch(c) {
+	case '(': return LPAREN;
+	case ')': return RPAREN;
+	default: return -1;
+    }
+}
+
 static token *readnext(lexer* l)
 {
     skip_whitespace(l);
     token *t = NULL;
     char c = currchar(l);
-    if (c == '\0')
+    if (c == '\0') {
 	t = token_new(END, 0);
-    if (isdigit(c)) {
+    }
+    else if (isdigit(c)) {
 	char a = advance(l);
 	int val = a - '0';
 	t = token_new(NUMBER, val);
     }
-    if (isop(c)) {
+    else if (isop(c)) {
 	char a = advance(l);
 	t = token_new(optype(a), 0);
     }
+    else if (isparen(c)) {
+	char a = advance(l);
+	t = token_new(parentype(a), 0);
+    }
+
     return t;
 }
 
