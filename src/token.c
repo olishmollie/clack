@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "token.h"
+#include "../headers/token.h"
 
 struct token_t {
     toktype type;

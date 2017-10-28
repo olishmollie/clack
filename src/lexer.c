@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lexer.h"
-#include "token.h"
+#include "../headers/lexer.h"
+#include "../headers/token.h"
 
 #define MAXBUFSIZE 32
 

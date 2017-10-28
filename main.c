@@ -4,8 +4,8 @@
 #include <ctype.h>
 #include <editline/readline.h>
 
-#include "token.h"
-#include "lexer.h"
+#include "headers/token.h"
+#include "headers/lexer.h"
 
 int main(void)
 {
