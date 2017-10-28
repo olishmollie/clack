@@ -2,7 +2,7 @@
 #define token_h
 
 typedef enum toktype {
-    NUMBER, PLUS, MINUS, MULT, DIV,
+    NUMBER, PLUS, MINUS, TIMES, DIVIDE,
     LPAREN, RPAREN, END
 } toktype;
 

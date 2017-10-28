@@ -59,6 +59,23 @@ static void skip_whitespace(lexer *l)
     }
 }
 
+static int isop(char c)
+{
+    return c == '+' || c == '-' ||
+	c == '*' || c == '/';
+}
+
+static toktype optype(c)
+{
+    switch (c) {
+	case '+': return PLUS;
+	case '-': return MINUS;
+	case '*': return TIMES;
+	case '/': return DIVIDE;
+	default: return -1;
+    }
+}
+
 static token *readnext(lexer* l)
 {
     skip_whitespace(l);
@@ -70,6 +87,10 @@ static token *readnext(lexer* l)
 	char a = advance(l);
 	int val = a - '0';
 	t = token_new(NUMBER, val);
+    }
+    if (isop(c)) {
+	char a = advance(l);
+	t = token_new(optype(a), 0);
     }
     return t;
 }
