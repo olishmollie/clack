@@ -5,8 +5,6 @@
 
 #include "../headers/lexer.h"
 
-#define MAXBUFSIZE 150
-
 struct token_t {
     toktype type;
     int value;

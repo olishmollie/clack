@@ -4,9 +4,6 @@
 
 #include "../headers/lexer.h"
 
-/* TODO: clean up macros */
-#define MAXBUFSIZE 150
-
 static token *throw(lexer *l, toktype actual, toktype expected)
 {
     lexer_halt(l);

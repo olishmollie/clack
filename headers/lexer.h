@@ -1,6 +1,8 @@
 #ifndef lexer_h
 #define lexer_h
 
+#define MAXBUFSIZE 150
+
 /* TOKEN */
 typedef enum toktype {
     NUMBER, PLUS, MINUS, TIMES, DIVIDE,
