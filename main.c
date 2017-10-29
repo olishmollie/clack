@@ -10,18 +10,18 @@
 int main(void)
 {
     while (1) {
-	char *input = readline(">> ");
-	add_history(input);
+        char *input = readline(">> ");
+        add_history(input);
 
-	lexer *l = lexer_new(input);
+        lexer *l = lexer_new(input);
 
-	while (!lexer_eof(l)) {
-	    token *t = lexer_next(l);
-	    printf("%s\n", token_tostr(t));
-	    token_delete(t);
-	}
+        while (!lexer_eof(l)) {
+            token *t = lexer_next(l);
+            printf("%s\n", token_tostr(t));
+            token_delete(t);
+        }
 
-	lexer_delete(l);
+        lexer_delete(l);
     }
 
     return 0;
