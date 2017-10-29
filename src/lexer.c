@@ -4,9 +4,75 @@
 #include <string.h>
 
 #include "../headers/lexer.h"
-#include "../headers/token.h"
 
 #define MAXBUFSIZE 150
+
+struct token_t {
+    toktype type;
+    int value;
+    char *err;
+};
+
+token *token_new(toktype type, int value, char *err)
+{
+    token *t = malloc(sizeof(token));
+    if (t) {
+        t->type = type;
+        t->value = value;
+        if (err) {
+            size_t len = strlen(err) + 1;
+            t->err = malloc(len*sizeof(char));
+            strncpy(t->err, err, len);
+        } else {
+            t->err = NULL;
+        }
+    }
+    return t;
+}
+
+toktype token_gettype(token* t)
+{
+    return t->type;
+}
+
+int token_getvalue(token *t)
+{
+    return t->value;
+}
+
+char *tokname(toktype t)
+{
+    switch (t) {
+        case NUMBER: return "NUMBER";
+        case PLUS: return "PLUS";
+        case MINUS: return "MINUS";
+        case TIMES: return "TIMES";
+        case DIVIDE: return "DIVIDE";
+        case LPAREN: return "LPAREN";
+        case RPAREN: return "RPAREN";
+        case IDENT: return "IDENT";
+        case ERR: return "ERR";
+        case END: return "EOF";
+    }
+}
+
+char *token_tostr(token *t)
+{
+    char* buf = malloc(150*sizeof(char));
+    snprintf(buf, 150, "Token { type: %s, value: %d, err: %s }", tokname(t->type), t->value, t->err);
+    return buf;
+}
+
+void token_delete(token* t)
+{
+    if (t) {
+        if (t->err) {
+            free(t->err);
+        }
+        free(t);
+    }
+
+}
 
 struct lexer_t {
     char* input;
@@ -97,15 +163,6 @@ static toktype ctoktype(c)
     return -1;
 }
 
-static token *lexer_throw(lexer *l, toktype expected, toktype actual)
-{
-    l->pos = l->size; /* force eof */
-    char *msg = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(msg, MAXBUFSIZE, "Unexpected type %s, expected %s (%d:%d)",
-             tokname(actual), tokname(expected), l->line, l->col);
-    return token_new(ERR, 0, msg);
-}
-
 static token *readdigit(lexer *l)
 {
     token *t;
@@ -144,11 +201,7 @@ static token *readnext(lexer* l)
         char a = advance(l);
         t = token_new(ctoktype(a), a, NULL);
     }
-    else {
-        // TODO: Find a way to throw a better error
-        lexer_throw(l, END, NUMBER);
-    }
-
+    // TODO: Error handling
     return t;
 }
 
@@ -169,9 +222,24 @@ token *lexer_next(lexer* l)
     return tmp;
 }
 
+int lexer_getline(lexer* l)
+{
+    return l->line;
+}
+
+int lexer_getcol(lexer* l)
+{
+    return l->col;
+}
+
 int lexer_eof(lexer* l)
 {
     return l->pos >= l->size;
+}
+
+void lexer_halt(lexer* l)
+{
+    l->pos = l->size; /* force eof */
 }
 
 void lexer_delete(lexer *l)
