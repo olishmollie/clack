@@ -1,2 +1,2 @@
-repl: main.c src/token.c src/lexer.c
-	cc -std=c99 -Wall main.c src/token.c src/lexer.c -ledit -o repl
+repl: main.c src/lexer.c src/interpreter.c
+	cc -std=c99 -Wall main.c src/lexer.c src/interpreter.c -ledit -o repl
