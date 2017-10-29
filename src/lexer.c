@@ -201,7 +201,7 @@ static token *readnext(lexer* l)
         char a = advance(l);
         t = token_new(ctoktype(a), a, NULL);
     }
-    // TODO: Error handling
+    /* TODO: Error handling */
     return t;
 }
 
@@ -214,7 +214,7 @@ token *lexer_peek(lexer* l)
 
 token *lexer_next(lexer* l)
 {
-    // TODO: Possible memory leak?
+    /* TODO: Possible memory leak? */
     token *tmp = l->currtok;
     if (!tmp)
         tmp = readnext(l);

@@ -4,7 +4,7 @@
 
 #include "../headers/lexer.h"
 
-// TODO: clean up macros
+/* TODO: clean up macros */
 #define MAXBUFSIZE 150
 
 static token *throw(lexer *l, toktype actual, toktype expected)
@@ -59,10 +59,10 @@ static token *calc(token *op, token *a, token *b)
 	case TIMES:
 	    result = lh * rh; break;
 	case DIVIDE:
-	    // TODO: Error handling - Division by zero
+	    /* TODO: Error handling - Division by zero */
 	    result = lh / rh; break;
 	default:
-	    //TODO: Error handling - unknown operator
+	    /* TODO: Error handling - unknown operator */
 	    result = 0;
 	    break;
     }
