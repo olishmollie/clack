@@ -63,15 +63,13 @@ static token *calc(token *op, token *a, token *b)
 
 token *interpreter_expr(lexer *l)
 {
-    token *result;
-    token *a = interpreter_term(l);
-    token *op = lexer_next(l);
-    token *b = interpreter_term(l);
-
-    result = calc(op, a, b);
-    token_delete(a);
-    token_delete(op);
-    token_delete(b);
+    token *result = interpreter_term(l);
+    while (!lexer_eof(l)) {
+	token *op = lexer_next(l);
+	token *term = interpreter_term(l);
+	result = calc(op, result, term);
+	token_delete(op); token_delete(term);
+    }
 
     return result;
 }
