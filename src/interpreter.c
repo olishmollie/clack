@@ -26,9 +26,23 @@ static token *expect(lexer *l, toktype expected)
     return throw(l, actual, expected);
 }
 
+token *expr(lexer *l);
+
 token *factor(lexer *l)
 {
-    return expect(l, NUMBER);
+    token *result;
+    token *nexttoken = lexer_peek(l);
+    toktype nexttype = token_gettype(nexttoken);
+    if (nexttype == LPAREN) {
+	token *lp = expect(l, LPAREN);
+	result = expr(l);
+	token *rp = expect(l, RPAREN);
+	token_delete(lp); token_delete(rp);
+    }
+    else {
+	result = expect(l, NUMBER);
+    }
+    return result;
 }
 
 static token *calc(token *op, token *a, token *b)
