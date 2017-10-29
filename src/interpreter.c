@@ -26,12 +26,7 @@ static token *expect(lexer *l, toktype expected)
     return throw(l, actual, expected);
 }
 
-token *interpreter_factor(lexer *l)
-{
-    return expect(l, NUMBER);
-}
-
-token *interpreter_term(lexer *l)
+token *factor(lexer *l)
 {
     return expect(l, NUMBER);
 }
@@ -61,14 +56,48 @@ static token *calc(token *op, token *a, token *b)
     return token_new(NUMBER, result, NULL);
 }
 
-token *interpreter_expr(lexer *l)
+token *term(lexer *l)
 {
-    token *result = interpreter_term(l);
-    while (!lexer_eof(l)) {
-	token *op = lexer_next(l);
-	token *term = interpreter_term(l);
-	result = calc(op, result, term);
-	token_delete(op); token_delete(term);
+    token *result = factor(l);
+    token *currtok = lexer_peek(l);
+    toktype nexttype = token_gettype(currtok);
+    while (nexttype == TIMES || nexttype == DIVIDE) {
+	token *op, *b;
+	if (nexttype == TIMES) {
+	    op = expect(l, TIMES);
+	    b = term(l);
+	}
+	else {
+	    op = expect(l, DIVIDE);
+	    b = term(l);
+	}
+	result = calc(op, result, b);
+	token_delete(op); token_delete(b);
+	currtok = lexer_peek(l);
+	nexttype = token_gettype(currtok);
+    }
+    return result;
+}
+
+token *expr(lexer *l)
+{
+    token *result = term(l);
+    token *currtok = lexer_peek(l);
+    toktype nexttype = token_gettype(currtok);
+    while (nexttype == PLUS || nexttype == MINUS) {
+	token *op, *b;
+	if (nexttype == PLUS) {
+	    op = expect(l, PLUS);
+	    b = term(l);
+	}
+	else {
+	    op = expect(l, MINUS);
+	    b = term(l);
+	}
+	result = calc(op, result, b);
+	token_delete(op); token_delete(b);
+	currtok = lexer_peek(l);
+	nexttype = token_gettype(currtok);
     }
 
     return result;
