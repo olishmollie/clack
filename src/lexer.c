@@ -65,9 +65,9 @@ void token_delete(token* t)
 {
     if (t) {
         if (t->err) {
-            free(t->err);
+	    free(t->err);
         }
-        free(t);
+	free(t);
     }
 
 }
@@ -206,17 +206,14 @@ static token *readnext(lexer* l)
 token *lexer_peek(lexer* l)
 {
     if (l->currtok == NULL)
-	l->currtok = readnext(l);
+        l->currtok = readnext(l);
     return l->currtok;
 }
 
 token *lexer_next(lexer* l)
 {
-    /* TODO: Possible memory leak? */
     token *tmp = l->currtok;
-    if (!tmp)
-        tmp = readnext(l);
-    l->currtok = NULL;
+    l->currtok = readnext(l);
     return tmp;
 }
 
