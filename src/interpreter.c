@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "../headers/lexer.h"
 
@@ -14,7 +13,7 @@ static token *type_error(lexer *l, toktype expected)
     return token_new(ERR, 0, msg);
 }
 
-static token *divisionbyzero(lexer *l)
+static token *division_by_zero(lexer *l)
 {
     lexer_halt(l);
     char *msg = malloc(MAXBUFSIZE*sizeof(char));
@@ -47,7 +46,7 @@ static token *calc(lexer *l, token *op, token *a, token *b)
 	    result = lh * rh; break;
 	case DIVIDE:
 	    if (rh == 0)
-		return divisionbyzero(l);
+		return division_by_zero(l);
 	    result = lh / rh; break;
 	default:
 	    /* TODO: Error handling - unknown operator */
@@ -63,9 +62,9 @@ token *expr(lexer *l);
 token *factor(lexer *l)
 {
     token *result;
-    token *nexttoken = lexer_peek(l);
-    toktype nexttype = token_gettype(nexttoken);
-    if (nexttype == LPAREN) {
+    token *nxt = lexer_peek(l);
+    toktype nxt_type = token_gettype(nxt);
+    if (nxt_type == LPAREN) {
 	token *lp = expect(l, LPAREN);
 	token_delete(lp);
 	result = expr(l);
@@ -95,11 +94,11 @@ token *term(lexer *l)
     if (token_gettype(result) == ERR) {
 	return result;
     }
-    token *currtok = lexer_peek(l);
-    toktype nexttype = token_gettype(currtok);
-    while (nexttype == TIMES || nexttype == DIVIDE) {
+    token *curr = lexer_peek(l);
+    toktype curr_type = token_gettype(curr);
+    while (curr_type == TIMES || curr_type == DIVIDE) {
 	token *op, *b;
-	if (nexttype == TIMES) {
+	if (curr_type == TIMES) {
 	    op = expect(l, TIMES);
 	    b = term(l);
 	    if (token_gettype(b) == ERR) {
@@ -115,8 +114,8 @@ token *term(lexer *l)
 	}
 	result = calc(l, op, result, b);
 	token_delete(op); token_delete(b);
-	currtok = lexer_peek(l);
-	nexttype = token_gettype(currtok);
+	curr = lexer_peek(l);
+	curr_type = token_gettype(curr);
     }
     return result;
 }
@@ -127,11 +126,11 @@ token *expr(lexer *l)
     if (token_gettype(result) == ERR) {
 	return result;
     }
-    token *currtok = lexer_peek(l);
-    toktype nexttype = token_gettype(currtok);
-    while (nexttype == PLUS || nexttype == MINUS) {
+    token *curr = lexer_peek(l);
+    toktype curr_type = token_gettype(curr);
+    while (curr_type == PLUS || curr_type == MINUS) {
 	token *op, *b;
-	if (nexttype == PLUS) {
+	if (curr_type == PLUS) {
 	    op = expect(l, PLUS);
 	    b = term(l);
 	    if (token_gettype(b) == ERR) {
@@ -147,8 +146,8 @@ token *expr(lexer *l)
 	}
 	result = calc(l, op, result, b);
 	token_delete(op); token_delete(b);
-	currtok = lexer_peek(l);
-	nexttype = token_gettype(currtok);
+	curr = lexer_peek(l);
+	curr_type = token_gettype(curr);
     }
     return result;
 }

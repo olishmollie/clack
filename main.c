@@ -16,7 +16,7 @@ int main(void)
 
         while (!lexer_eof(l)) {
             token* res = expr(l);
-            printf("%s\n", token_tostr(res));
+            printf("%s\n", token_str(res));
 	    token_delete(res);
         }
 

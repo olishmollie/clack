@@ -54,7 +54,7 @@ char *tokname(toktype t)
     }
 }
 
-char *token_tostr(token *t)
+char *token_str(token *t)
 {
     char* buf = malloc(150*sizeof(char));
     snprintf(buf, 150, "Token { type: %s, value: %d, err: %s }", tokname(t->type), t->value, t->err);
@@ -96,7 +96,7 @@ lexer *lexer_new(char* input)
     return l;
 }
 
-static char currchar(lexer* l)
+static char curr_char(lexer *l)
 {
     if (l->pos < l->size)
 	return l->input[l->pos];
@@ -120,7 +120,7 @@ static char advance(lexer* l)
 
 static void skip_whitespace(lexer *l)
 {
-    if (isspace(currchar(l))) {
+    if (isspace(curr_char(l))) {
         advance(l);
     }
 }
@@ -161,16 +161,16 @@ static toktype ctoktype(c)
     return -1;
 }
 
-static token *readdigit(lexer *l)
+static token *read_digit(lexer *l)
 {
     token *t;
     int i = 0, val = 0;
-    char c = currchar(l);
+    char c = curr_char(l);
     while (ctoktype(c) == NUMBER) {
         c = advance(l);
         val *= (10 * (i + 1));
         val += c - '0';
-        c = currchar(l);
+        c = curr_char(l);
     }
     t = token_new(NUMBER, val, NULL);
     return t;
@@ -180,12 +180,12 @@ static token *readnext(lexer* l)
 {
     skip_whitespace(l);
     token *t = NULL;
-    char c = currchar(l);
+    char c = curr_char(l);
     if (c == '\0') {
         t = token_new(END, 0, NULL);
     }
     else if (isdigit(c)) {
-        return readdigit(l);
+        return read_digit(l);
     }
     else if (isop(c)) {
         char a = advance(l);

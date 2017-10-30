@@ -15,7 +15,7 @@ typedef struct token_t token;
 token *token_new(toktype, int, char*);
 toktype token_gettype(token*);
 int token_getvalue(token*);
-char* token_tostr(token*);
+char* token_str(token *);
 
 void token_delete(token*);
 
