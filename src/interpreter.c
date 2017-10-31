@@ -10,7 +10,7 @@ static token *type_error(lexer *l, toktype expected)
     toktype actual = token_gettype(lexer_peek(l));
     snprintf(msg, MAXBUFSIZE, "Unexpected type %s, expected %s (%d:%d)",
 	     tokname(actual), tokname(expected), lexer_getline(l), lexer_getcol(l));
-    return token_new(ERR, 0, msg);
+    return token_new(ERR, 0, NULL, msg);
 }
 
 static token *division_by_zero(lexer *l)
@@ -18,7 +18,7 @@ static token *division_by_zero(lexer *l)
     lexer_halt(l);
     char *msg = malloc(MAXBUFSIZE*sizeof(char));
     snprintf(msg, MAXBUFSIZE, "Division by zero (%d:%d)", lexer_getline(l), lexer_getcol(l));
-    return token_new(ERR, 0, msg);
+    return token_new(ERR, 0, NULL, msg);
 }
 
 static token *expect(lexer *l, toktype expected)
@@ -54,7 +54,7 @@ static token *calc(lexer *l, token *op, token *a, token *b)
 	    break;
     }
 
-    return token_new(NUMBER, result, NULL);
+    return token_new(NUMBER, result, NULL, NULL);
 }
 
 token *expr(lexer *l);

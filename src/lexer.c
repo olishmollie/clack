@@ -8,22 +8,18 @@
 struct token_t {
     toktype type;
     int value;
+    char *str;
     char *err;
 };
 
-token *token_new(toktype type, int value, char *err)
+token *token_new(toktype type, int value, char *str, char *err)
 {
     token *t = malloc(sizeof(token));
     if (t) {
         t->type = type;
         t->value = value;
-        if (err) {
-            size_t len = strlen(err) + 1;
-            t->err = malloc(len*sizeof(char));
-            strncpy(t->err, err, len);
-        } else {
-            t->err = NULL;
-        }
+	t->str = str;
+	t->err = err;
     }
     return t;
 }
@@ -56,8 +52,9 @@ char *tokname(toktype t)
 
 char *token_str(token *t)
 {
-    char* buf = malloc(150*sizeof(char));
-    snprintf(buf, 150, "Token { type: %s, value: %d, err: %s }", tokname(t->type), t->value, t->err);
+    char* buf = malloc(MAXBUFSIZE*sizeof(char));
+    snprintf(buf, MAXBUFSIZE, "Token { type: %s, value: %d, str: '%s', err: '%s' }",
+	    tokname(t->type), t->value, t->str, t->err);
     return buf;
 }
 
@@ -131,12 +128,12 @@ static int isop(char c)
 	c == '*' || c == '/';
 }
 
-static int isparen(c)
+static int isparen(char c)
 {
     return c == '(' || c == ')';
 }
 
-static toktype ctoktype(c)
+static toktype chartype(char c)
 {
     if (isop(c)) {
 	switch(c) {
@@ -166,38 +163,53 @@ static token *read_digit(lexer *l)
     token *t;
     int i = 0, val = 0;
     char c = curr_char(l);
-    while (ctoktype(c) == NUMBER) {
+    while (chartype(c) == NUMBER) {
         c = advance(l);
         val *= (10 * (i + 1));
         val += c - '0';
         c = curr_char(l);
     }
-    t = token_new(NUMBER, val, NULL);
+    t = token_new(NUMBER, val, NULL, NULL);
     return t;
 }
 
-static token *readnext(lexer* l)
+static token *read_ident(lexer *l)
+{
+    char* str = malloc(MAXBUFSIZE*sizeof(char));
+    char c = curr_char(l);
+    while (chartype(c) == IDENT) {
+        c = advance(l);
+        char tmp[2] = {c};
+        strcat(str, tmp);
+	c = curr_char(l);
+    }
+    str = realloc(str, strlen(str));
+    return token_new(IDENT, 0, str, NULL);
+}
+
+static token *read_next(lexer *l)
 {
     skip_whitespace(l);
     token *t = NULL;
     char c = curr_char(l);
     if (c == '\0') {
-        t = token_new(END, 0, NULL);
+        t = token_new(END, 0, NULL, NULL);
     }
     else if (isdigit(c)) {
         return read_digit(l);
     }
     else if (isop(c)) {
         char a = advance(l);
-        t = token_new(ctoktype(a), 0, NULL);
+        t = token_new(chartype(a), 0, NULL, NULL);
     }
     else if (isparen(c)) {
         char a = advance(l);
-        t = token_new(ctoktype(a), 0, NULL);
+        t = token_new(chartype(a), 0, NULL, NULL);
     }
     else if (isalpha(c)) {
-        char a = advance(l);
-        t = token_new(ctoktype(a), a, NULL);
+//        char a = advance(l);
+//        t = token_new(chartype(a), a, NULL);
+        return read_ident(l);
     }
     /* TODO: Error handling */
     return t;
@@ -206,14 +218,14 @@ static token *readnext(lexer* l)
 token *lexer_peek(lexer* l)
 {
     if (l->currtok == NULL)
-        l->currtok = readnext(l);
+        l->currtok = read_next(l);
     return l->currtok;
 }
 
 token *lexer_next(lexer* l)
 {
-    token *tmp = l->currtok;
-    l->currtok = readnext(l);
+    token *tmp = lexer_peek(l);
+    l->currtok = read_next(l);
     return tmp;
 }
 
@@ -229,7 +241,9 @@ int lexer_getcol(lexer* l)
 
 int lexer_eof(lexer* l)
 {
-    return l->pos >= l->size;
+    if (l->currtok == NULL)
+        return 0;
+    return l->currtok->type == END;
 }
 
 void lexer_halt(lexer* l)

@@ -12,7 +12,7 @@ char* tokname(toktype);
 
 typedef struct token_t token;
 
-token *token_new(toktype, int, char*);
+token *token_new(toktype, int, char*, char*);
 toktype token_gettype(token*);
 int token_getvalue(token*);
 char* token_str(token *);

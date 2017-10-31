@@ -15,9 +15,8 @@ int main(void)
         lexer *l = lexer_new(input);
 
         while (!lexer_eof(l)) {
-            token* res = expr(l);
+	    token *res = lexer_next(l);
             printf("%s\n", token_str(res));
-	    token_delete(res);
         }
 
         lexer_delete(l);
