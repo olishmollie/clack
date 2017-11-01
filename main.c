@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <editline/readline.h>
 
-#include "headers/interpreter.h"
+#include "headers/parser.h"
 
 int main(void)
 {
@@ -15,8 +15,9 @@ int main(void)
         lexer *l = lexer_new(input);
 
         while (!lexer_eof(l)) {
-	    token *res = lexer_next(l);
+            token *res = expr(l);
             printf("%s\n", token_str(res));
+            token_delete(res);
         }
 
         lexer_delete(l);
