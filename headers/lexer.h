@@ -1,25 +1,8 @@
 #ifndef lexer_h
 #define lexer_h
 
-#define MAXBUFSIZE 150
+#include "token.h"
 
-/* TOKEN */
-typedef enum toktype {
-    NUMBER, PLUS, MINUS, TIMES, DIVIDE,
-    LPAREN, RPAREN, IDENT, ERR, END
-} toktype;
-char* tokname(toktype);
-
-typedef struct token_t token;
-
-token *token_new(toktype, int, char*, char*);
-toktype token_gettype(token*);
-int token_getvalue(token*);
-char* token_str(token *);
-
-void token_delete(token*);
-
-/* LEXER */
 typedef struct lexer_t lexer;
 
 lexer *lexer_new(char*);

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 
+#include "../headers/token.h"
 #include "../headers/lexer.h"
+#include "../headers/ast.h"
 
 void type_error(lexer *l, toktype unexpected)
 {
@@ -8,6 +10,7 @@ void type_error(lexer *l, toktype unexpected)
     token_new(ERR, -1, NULL, msg);
 }
 
+// TODO: Throw exception
 static void expect(lexer *l, toktype expected)
 {
     token *curr = lexer_peek(l);
@@ -15,36 +18,11 @@ static void expect(lexer *l, toktype expected)
     (actual == expected) ? lexer_next(l) : type_error(l, actual);
 }
 
-static token *calc(lexer *l, token *op, token *a, token *b)
+ast *expr(lexer *l);
+
+ast *factor(lexer *l)
 {
-    int result;
-    int lh = token_getvalue(a);
-    int rh = token_getvalue(b);
-
-    switch (token_gettype(op)) {
-	case PLUS:
-	    result = lh + rh; break;
-	case MINUS:
-	    result = lh - rh; break;
-	case TIMES:
-	    result = lh * rh; break;
-	case DIVIDE:
-	    /* TODO: Error handling - division by zero */
-	    result = lh / rh; break;
-	default:
-	    /* TODO: Error handling - unknown operator */
-	    result = 0;
-	    break;
-    }
-
-    return token_new(NUMBER, result, NULL, NULL);
-}
-
-token *expr(lexer *l);
-
-token *factor(lexer *l)
-{
-    token *result;
+    ast *result;
     token *curr = lexer_peek(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
@@ -54,61 +32,56 @@ token *factor(lexer *l)
     }
     else {
         expect(l, NUMBER);
-        result = curr;
-}
+        result = ast_num(curr);
+    }
     return result;
 }
 
-token *term(lexer *l)
+ast *term(lexer *l)
 {
-    token *result = factor(l);
+    ast *left = factor(l);
     token *curr = lexer_peek(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == TIMES || curr_type == DIVIDE) {
-        token *op, *b;
+        token *op; ast *right;
         if (curr_type == TIMES) {
             expect(l, TIMES);
             op = curr;
-            b = term(l);
+            right = factor(l);
         }
         else {
             expect(l, DIVIDE);
             op = curr;
-            b = term(l);
+            right = factor(l);
         }
-        result = calc(l, op, result, b);
-        token_delete(op); token_delete(b);
+	left = ast_binop(op, left, right);
         curr = lexer_peek(l);
         curr_type = token_gettype(curr);
     }
-    return result;
+    return left;
 }
 
-token *expr(lexer *l)
+ast *expr(lexer *l)
 {
-    token *result = term(l);
-    if (token_gettype(result) == ERR) {
-        return result;
-    }
+    ast *left = term(l);
     token *curr = lexer_peek(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == PLUS || curr_type == MINUS) {
-        token *op, *b;
+        token *op; ast *right;
         if (curr_type == PLUS) {
             expect(l, PLUS);
             op = curr;
-            b = term(l);
+            right = term(l);
         }
         else {
             expect(l, MINUS);
             op = curr;
-            b = term(l);
+            right = term(l);
         }
-        result = calc(l, op, result, b);
-        token_delete(op); token_delete(b);
+        left = ast_binop(op, left, right);
         curr = lexer_peek(l);
         curr_type = token_gettype(curr);
     }
-    return result;
+    return left;
 }
 

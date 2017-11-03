@@ -3,71 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../headers/token.h"
 #include "../headers/lexer.h"
-
-struct token_t {
-    toktype type;
-    int value;
-    char *str;
-    char *err;
-};
-
-token *token_new(toktype type, int value, char *str, char *err)
-{
-    token *t = malloc(sizeof(token));
-    if (t) {
-        t->type = type;
-        t->value = value;
-	t->str = str;
-	t->err = err;
-    }
-    return t;
-}
-
-toktype token_gettype(token* t)
-{
-    return t->type;
-}
-
-int token_getvalue(token *t)
-{
-    return t->value;
-}
-
-char *tokname(toktype t)
-{
-    switch (t) {
-        case NUMBER: return "NUMBER";
-        case PLUS: return "PLUS";
-        case MINUS: return "MINUS";
-        case TIMES: return "TIMES";
-        case DIVIDE: return "DIVIDE";
-        case LPAREN: return "LPAREN";
-        case RPAREN: return "RPAREN";
-        case IDENT: return "IDENT";
-        case ERR: return "ERR";
-        case END: return "EOF";
-    }
-}
-
-char *token_str(token *t)
-{
-    char* buf = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(buf, MAXBUFSIZE, "Token { type: %s, value: %d, str: '%s', err: '%s' }",
-	    tokname(t->type), t->value, t->str, t->err);
-    return buf;
-}
-
-void token_delete(token* t)
-{
-    if (t) {
-        if (t->err) {
-	    free(t->err);
-        }
-	free(t);
-    }
-
-}
 
 struct lexer_t {
     char* input;
@@ -243,7 +180,7 @@ int lexer_eof(lexer* l)
 {
     if (l->currtok == NULL)
         return 0;
-    return l->currtok->type == END;
+    return token_gettype(l->currtok) == END;
 }
 
 void lexer_halt(lexer* l)
