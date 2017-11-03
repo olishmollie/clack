@@ -6,6 +6,7 @@
 
 #include "headers/ast.h"
 #include "headers/parser.h"
+#include "headers/interpreter.h"
 
 int main(void)
 {
@@ -16,8 +17,8 @@ int main(void)
         lexer *l = lexer_new(input);
 
         while (!lexer_eof(l)) {
-            ast *res = expr(l);
-	    ast_print(res, 0, NULL);
+	    ast *res = expr(l);
+	    printf("%d\n", visit(res));
 	    ast_delete(res);
         }
 

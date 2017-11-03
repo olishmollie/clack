@@ -4,12 +4,6 @@
 #include "../headers/token.h"
 #include "../headers/ast.h"
 
-struct ast_t {
-    token *root;
-    ast *left;
-    ast *right;
-};
-
 ast *ast_binop(token *root, ast *left, ast *right)
 {
     ast *a = malloc(sizeof(ast));
@@ -29,6 +23,11 @@ ast *ast_num(token *n)
 	a->left = a->right = NULL;
     }
     return a;
+}
+
+toktype ast_gettype(ast *a)
+{
+    return token_gettype(a->root);
 }
 
 void ast_print(ast *a, int n, char *ident)

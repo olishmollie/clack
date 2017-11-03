@@ -1,5 +1,5 @@
-#ifndef interpreter_h
-#define interpreter_h
+#ifndef parser_h
+#define parser_h
 
 #include "ast.h"
 #include "lexer.h"
