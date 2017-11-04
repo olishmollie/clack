@@ -11,7 +11,7 @@
 int main(void)
 {
     while (1) {
-        char *input = readline(">> ");
+        char *input = readline("fig>> ");
         add_history(input);
 
         lexer *l = lexer_new(input);
