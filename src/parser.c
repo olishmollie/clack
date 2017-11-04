@@ -30,9 +30,19 @@ ast *factor(lexer *l)
         result = expr(l);
         expect(l, RPAREN);
     }
-    else {
+    else if (curr_type == NUMBER) {
         expect(l, NUMBER);
         result = ast_num(curr);
+    } else if (curr_type == PLUS) {
+	expect(l, PLUS);
+	result = ast_unaryop(curr, factor(l));
+    } else if (curr_type == MINUS) {
+        expect(l, MINUS);
+        ast *next = factor(l);
+        result = ast_unaryop(curr, next);
+    } else {
+	/* TODO: Error handling */
+	result = NULL;
     }
     return result;
 }

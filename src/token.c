@@ -24,7 +24,7 @@ token *token_new(toktype type, int value, char *str, char *err)
 
 toktype token_gettype(token* t)
 {
-    return t->type;
+    return t ? t->type : NIL;
 }
 
 int token_getvalue(token *t)
@@ -45,6 +45,7 @@ char *tokname(toktype t)
         case IDENT: return "IDENT";
         case ERR: return "ERR";
         case END: return "EOF";
+	case NIL: return "NIL";
     }
 }
 

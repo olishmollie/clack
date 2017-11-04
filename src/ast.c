@@ -15,6 +15,17 @@ ast *ast_binop(token *root, ast *left, ast *right)
     return a;
 }
 
+ast *ast_unaryop(token *root, ast *next)
+{
+    ast *a = malloc(sizeof(ast));
+    if (a) {
+	a->root = root;
+	a->left = NULL;
+	a->right = next;
+    }
+    return a;
+}
+
 ast *ast_num(token *n)
 {
     ast *a = malloc(sizeof(ast));
@@ -27,7 +38,7 @@ ast *ast_num(token *n)
 
 toktype ast_gettype(ast *a)
 {
-    return token_gettype(a->root);
+    return a ? token_gettype(a->root) : NIL;
 }
 
 void ast_print(ast *a, int n, char *ident)
