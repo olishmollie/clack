@@ -32,14 +32,14 @@ int token_getvalue(token *t)
     return t->value;
 }
 
-void token_setvalue(token* t, int val)
-{
-    t->value = val;
-}
-
 char *token_getname(token *t)
 {
     return t->name;
+}
+
+char *token_geterr(token *t)
+{
+    return t->err;
 }
 
 char *tokname(toktype t)

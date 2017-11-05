@@ -1,14 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../headers/token.h"
 #include "../headers/lexer.h"
 #include "../headers/ast.h"
 
-static void error(lexer *l, toktype unexpected)
+static ast *error(lexer *l, token *unexpected)
 {
-    printf("Parser error: unexpected %s (%d|%d)\n",
-	tokname(unexpected), lexer_getline(l), lexer_getcol(l));
+    lexer_halt(l);
+    char *toktype = tokname(token_gettype(unexpected));
+    char *msg = malloc(MAXBUFSIZE*sizeof(char));
+    snprintf(msg, MAXBUFSIZE, "Parser error: unexpected %s (%d|%d)",
+        toktype, lexer_getline(l), lexer_getcol(l) - 1); /* TODO: HACK!! */
+    msg = realloc(msg, strlen(msg) + 1);
+    token *err = token_new(ERR, 0, NULL, msg);
+    return ast_err(err);
 }
 
 static void expect(lexer *l, toktype expected)
@@ -16,9 +23,9 @@ static void expect(lexer *l, toktype expected)
     token *curr = lexer_currtok(l);
     toktype actual = token_gettype(curr);
     if (actual == expected) {
-	lexer_advance(l);
+        lexer_advance(l);
     } else {
-	error(l, actual);
+        error(l, curr);
     }
 }
 
@@ -52,8 +59,10 @@ ast *factor(lexer *l)
     } else if (curr_type == IDENT) {
         result = variable(l);
     } else if (curr_type == ERR) {
-	expect(l, ERR);
-	result = ast_err(curr);
+        expect(l, ERR);
+        result = ast_err(curr);
+    } else {
+        result = error(l, curr);
     }
     return result;
 }
