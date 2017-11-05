@@ -36,11 +36,21 @@ ast *ast_num(token *n)
     return a;
 }
 
-ast *ast_var(token *n)
+ast *ast_var(token *v)
 {
     ast *a = malloc(sizeof(ast));
     if (a) {
-	a->root = n;
+	a->root = v;
+	a->left = a->right = NULL;
+    }
+    return a;
+}
+
+ast *ast_err(token *e)
+{
+    ast *a = malloc(sizeof(ast));
+    if (a) {
+	a->root = e;
 	a->left = a->right = NULL;
     }
     return a;
@@ -51,7 +61,7 @@ toktype ast_gettype(ast *a)
     return a ? token_gettype(a->root) : NOOP;
 }
 
-void ast_print(ast *a, int n, char *ident)
+static void ast_print_recurse(ast *a, int n, char *ident)
 {
     if (!a) return;
     char *rootstr = token_str(a->root);
@@ -67,10 +77,15 @@ void ast_print(ast *a, int n, char *ident)
 	printf("%s%s\n", indent, rootstr);
     }
 
-    ast_print(a->left, n+1, "Left");
-    ast_print(a->right, n+1, "Right");
+    ast_print_recurse(a->left, n+1, "Left");
+    ast_print_recurse(a->right, n+1, "Right");
 
     free(rootstr); free(indent);
+}
+
+void ast_print(ast *a)
+{
+    ast_print_recurse(a, 0, NULL);
 }
 
 void ast_delete(ast *a)

@@ -5,20 +5,20 @@
 #include "../headers/lexer.h"
 #include "../headers/ast.h"
 
-ast *type_error(lexer *l, toktype unexpected)
+static void error(lexer *l, toktype unexpected)
 {
-    char *msg = malloc(MAXBUFSIZE*sizeof(char));
-    token *t = token_new(ERR, -1, NULL, msg);
-    return ast_var(t);
+    printf("Parser error: unexpected %s (%d|%d)\n",
+	tokname(unexpected), lexer_getline(l), lexer_getcol(l));
 }
 
-// TODO: Throw exception
 static void expect(lexer *l, toktype expected)
 {
     token *curr = lexer_currtok(l);
     toktype actual = token_gettype(curr);
     if (actual == expected) {
 	lexer_advance(l);
+    } else {
+	error(l, actual);
     }
 }
 
@@ -33,7 +33,7 @@ ast *variable(lexer *l)
 
 ast *factor(lexer *l)
 {
-    ast *result;
+    ast *result = NULL;
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
@@ -51,9 +51,9 @@ ast *factor(lexer *l)
         result = ast_unaryop(curr, factor(l));
     } else if (curr_type == IDENT) {
         result = variable(l);
-    } else {
-        /* TODO: Error handling */
-        result = type_error(l, NOOP);
+    } else if (curr_type == ERR) {
+	expect(l, ERR);
+	result = ast_err(curr);
     }
     return result;
 }

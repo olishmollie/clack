@@ -12,6 +12,7 @@ token *lexer_advance(lexer*);
 int lexer_getline(lexer*);
 int lexer_getcol(lexer*);
 int lexer_eof(lexer*);
+void lexer_halt(lexer*);
 
 void lexer_delete(lexer*);
 

@@ -131,30 +131,34 @@ static token *lexer_error(lexer *l, char c)
     snprintf(msg, (size_t)MAXBUFSIZE,
 	"Unexpected '%c' at (%d|%d)",
 	c, lexer_getline(l), lexer_getcol(l));
-    return token_new(ERR, -1, NULL, msg);
+    token *err = token_new(ERR, -1, NULL, msg);
+    return err;
 }
 
 static token *read_next(lexer *l)
 {
     skip_whitespace(l);
+    token *result = NULL;
     char c = curr_char(l);
     if (c == '\0') {
-        return token_new(END, 0, NULL, NULL);
+	result = token_new(END, 0, NULL, NULL);
     }
     else if (isdigit(c)) {
-        return read_digit(l);
+        result = read_digit(l);
     }
     else if (isop(c)) {
-        return token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = token_new(chartype(advance(l)), 0, NULL, NULL);
     }
     else if (isparen(c)) {
-        return token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = token_new(chartype(advance(l)), 0, NULL, NULL);
     }
     else if (isalpha(c)) {
-        return read_ident(l);
+        result = read_ident(l);
     } else {
-	return lexer_error(l, advance(l));
+        result = lexer_error(l, c);
+        advance(l);
     }
+    return result;
 }
 
 token *lexer_currtok(lexer* l)
@@ -189,13 +193,16 @@ int lexer_eof(lexer* l)
     return curr_type == END;
 }
 
+void lexer_halt(lexer* l)
+{
+    l->currtok = token_new(END, 0, NULL, NULL);
+}
+
 void lexer_delete(lexer *l)
 {
     if (l) {
         if (l->input)
             free(l->input);
-        if (l->currtok)
-            token_delete(l->currtok);
 	free(l);
     }
 }

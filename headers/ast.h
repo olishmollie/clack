@@ -15,8 +15,9 @@ ast *ast_binop(token*, ast*, ast*);
 ast *ast_unaryop(token*, ast*);
 ast *ast_num(token*);
 ast *ast_var(token*);
+ast *ast_err(token*);
 toktype ast_gettype(ast*);
-void ast_print(ast*, int, char*);
+void ast_print(ast*);
 
 void ast_delete(ast*);
 
