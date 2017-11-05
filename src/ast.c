@@ -36,6 +36,16 @@ ast *ast_num(token *n)
     return a;
 }
 
+ast *ast_var(token *n)
+{
+    ast *a = malloc(sizeof(ast));
+    if (a) {
+	a->root = n;
+	a->left = a->right = NULL;
+    }
+    return a;
+}
+
 toktype ast_gettype(ast *a)
 {
     return a ? token_gettype(a->root) : NIL;

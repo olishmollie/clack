@@ -3,7 +3,8 @@
 
 #include "token.h"
 #include "ast.h"
+#include "table.h"
 
-int visit(ast*);
+int visit(ast*, table*);
 
 #endif

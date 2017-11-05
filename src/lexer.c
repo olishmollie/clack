@@ -62,7 +62,7 @@ static void skip_whitespace(lexer *l)
 static int isop(char c)
 {
     return c == '+' || c == '-' ||
-	c == '*' || c == '/';
+	c == '*' || c == '/' || c == '=';
 }
 
 static int isparen(char c)
@@ -78,6 +78,7 @@ static toktype chartype(char c)
 	    case '-': return MINUS;
 	    case '*': return TIMES;
 	    case '/': return DIVIDE;
+        case '=': return EQUALS;
 	}
     }
     else if (isdigit(c)) {

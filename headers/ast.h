@@ -14,6 +14,7 @@ struct ast_t {
 ast *ast_binop(token*, ast*, ast*);
 ast *ast_unaryop(token*, ast*);
 ast *ast_num(token*);
+ast *ast_var(token*);
 toktype ast_gettype(ast*);
 void ast_print(ast*, int, char*);
 
