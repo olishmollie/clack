@@ -24,7 +24,7 @@ token *token_new(toktype type, int value, char *name, char *err)
 
 toktype token_gettype(token* t)
 {
-    return t ? t->type : NIL;
+    return t ? t->type : NOOP;
 }
 
 int token_getvalue(token *t)
@@ -56,14 +56,14 @@ char *tokname(toktype t)
         case IDENT: return "IDENT";
         case ERR: return "ERR";
         case END: return "EOF";
-	case NIL: return "NIL";
+	case NOOP: return "NOOP";
     }
 }
 
 char *token_str(token *t)
 {
     char *buf = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(buf, MAXBUFSIZE, "<type: %s, value: %d, str: '%s', err: '%s'>",
+    snprintf(buf, MAXBUFSIZE, "<type: %s, value: %d, name: '%s', err: '%s'>",
 	    tokname(t->type), t->value, t->name, t->err);
     return buf;
 }
@@ -72,7 +72,7 @@ void token_delete(token* t)
 {
     if (t) {
         if (t->err) {
-            free(t->err);
+	    free(t->err);
         }
         if (t->name) {
             free(t->name);

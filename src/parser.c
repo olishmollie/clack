@@ -15,14 +15,10 @@ ast *type_error(lexer *l, toktype unexpected)
 // TODO: Throw exception
 static void expect(lexer *l, toktype expected)
 {
-    token *curr = lexer_peek(l);
+    token *curr = lexer_currtok(l);
     toktype actual = token_gettype(curr);
     if (actual == expected) {
-	lexer_next(l);
-    } else {
-	printf("ERROR: Parsing has failed with type %s\n", tokname(actual));
-	lexer_halt(l);
-	exit(1);
+	lexer_advance(l);
     }
 }
 
@@ -30,7 +26,7 @@ ast *expr(lexer *l);
 
 ast *variable(lexer *l)
 {
-    token *curr = lexer_peek(l);
+    token *curr = lexer_currtok(l);
     expect(l, IDENT);
     return ast_var(curr);
 }
@@ -38,7 +34,7 @@ ast *variable(lexer *l)
 ast *factor(lexer *l)
 {
     ast *result;
-    token *curr = lexer_peek(l);
+    token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
         expect(l, LPAREN);
@@ -57,7 +53,7 @@ ast *factor(lexer *l)
         result = variable(l);
     } else {
         /* TODO: Error handling */
-        result = type_error(l, NIL);
+        result = type_error(l, NOOP);
     }
     return result;
 }
@@ -65,7 +61,7 @@ ast *factor(lexer *l)
 ast *term(lexer *l)
 {
     ast *left = factor(l);
-    token *curr = lexer_peek(l);
+    token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == TIMES || curr_type == DIVIDE) {
         token *op;
@@ -80,7 +76,7 @@ ast *term(lexer *l)
             right = factor(l);
         }
         left = ast_binop(op, left, right);
-        curr = lexer_peek(l);
+        curr = lexer_currtok(l);
         curr_type = token_gettype(curr);
     }
     return left;
@@ -89,7 +85,7 @@ ast *term(lexer *l)
 ast *expr(lexer *l)
 {
     ast *left = term(l);
-    token *curr = lexer_peek(l);
+    token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == PLUS || curr_type == MINUS || curr_type == EQUALS) {
         token *op; ast *right;
@@ -107,7 +103,7 @@ ast *expr(lexer *l)
             right = expr(l);
         }
         left = ast_binop(op, left, right);
-        curr = lexer_peek(l);
+        curr = lexer_currtok(l);
         curr_type = token_gettype(curr);
     }
     return left;

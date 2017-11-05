@@ -48,7 +48,7 @@ ast *ast_var(token *n)
 
 toktype ast_gettype(ast *a)
 {
-    return a ? token_gettype(a->root) : NIL;
+    return a ? token_gettype(a->root) : NOOP;
 }
 
 void ast_print(ast *a, int n, char *ident)

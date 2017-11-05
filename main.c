@@ -20,9 +20,11 @@ int main(void)
 	lexer *l = lexer_new(input);
 
 	while (!lexer_eof(l)) {
-	    ast *res = parse(l);
-	    printf("%d\n", visit(res, t));
-	    ast_delete(res);
+	    /* ast *res = parse(l); */
+	    /* printf("%d\n", visit(res, t)); */
+	    /* ast_delete(res); */
+	    token *next = lexer_advance(l);
+	    printf("%s\n", token_str(next));
 	}
 
 	lexer_delete(l);

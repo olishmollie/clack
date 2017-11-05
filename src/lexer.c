@@ -125,44 +125,48 @@ static token *read_ident(lexer *l)
     return token_new(IDENT, 0, str, NULL);
 }
 
+static token *lexer_error(lexer *l, char c)
+{
+    char *msg = malloc(MAXBUFSIZE*sizeof(char));
+    snprintf(msg, (size_t)MAXBUFSIZE,
+	"Unexpected '%c' at (%d|%d)",
+	c, lexer_getline(l), lexer_getcol(l));
+    return token_new(ERR, -1, NULL, msg);
+}
+
 static token *read_next(lexer *l)
 {
     skip_whitespace(l);
-    token *t = NULL;
     char c = curr_char(l);
     if (c == '\0') {
-        t = token_new(END, 0, NULL, NULL);
+        return token_new(END, 0, NULL, NULL);
     }
     else if (isdigit(c)) {
         return read_digit(l);
     }
     else if (isop(c)) {
-        char a = advance(l);
-        t = token_new(chartype(a), 0, NULL, NULL);
+        return token_new(chartype(advance(l)), 0, NULL, NULL);
     }
     else if (isparen(c)) {
-        char a = advance(l);
-        t = token_new(chartype(a), 0, NULL, NULL);
+        return token_new(chartype(advance(l)), 0, NULL, NULL);
     }
     else if (isalpha(c)) {
-//        char a = advance(l);
-//        t = token_new(chartype(a), a, NULL);
         return read_ident(l);
+    } else {
+	return lexer_error(l, advance(l));
     }
-    /* TODO: Error handling */
-    return t;
 }
 
-token *lexer_peek(lexer* l)
+token *lexer_currtok(lexer* l)
 {
     if (l->currtok == NULL)
         l->currtok = read_next(l);
     return l->currtok;
 }
 
-token *lexer_next(lexer* l)
+token *lexer_advance(lexer* l)
 {
-    token *tmp = lexer_peek(l);
+    token *tmp = lexer_currtok(l);
     l->currtok = read_next(l);
     return tmp;
 }
@@ -181,12 +185,8 @@ int lexer_eof(lexer* l)
 {
     if (l->currtok == NULL)
         return 0;
-    return token_gettype(l->currtok) == END;
-}
-
-void lexer_halt(lexer* l)
-{
-    l->pos = l->size; /* force eof */
+    toktype curr_type = token_gettype(l->currtok);
+    return curr_type == END;
 }
 
 void lexer_delete(lexer *l)
