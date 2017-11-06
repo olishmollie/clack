@@ -54,7 +54,7 @@ static char advance(lexer* l)
 
 static void skip_whitespace(lexer *l)
 {
-    if (isspace(curr_char(l))) {
+    while (isspace(curr_char(l))) {
         advance(l);
     }
 }
