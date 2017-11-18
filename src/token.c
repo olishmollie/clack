@@ -44,20 +44,10 @@ char *token_geterr(token *t)
 
 char *tokname(toktype t)
 {
-    switch (t) {
-        case NUMBER: return "NUMBER";
-        case PLUS: return "PLUS";
-        case MINUS: return "MINUS";
-        case TIMES: return "TIMES";
-        case DIVIDE: return "DIVIDE";
-	case EQUALS: return "EQUALS";
-        case LPAREN: return "LPAREN";
-        case RPAREN: return "RPAREN";
-        case IDENT: return "IDENT";
-        case ERR: return "ERR";
-        case END: return "EOF";
-	case NOOP: return "NOOP";
-    }
+    char *names[] = { "NUMBER", "PLUS", "MINUS", "TIMES",
+		    "DIVIDE", "EQUALS", "LPAREN", "RPAREN",
+		    "IDENT", "ERR", "END", "NWLN", "NOOP" };
+    return names[t];
 }
 
 char *token_str(token *t)
