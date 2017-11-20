@@ -1,0 +1,22 @@
+* Fig 
+
+** Grammar
+   
+    <prog>   ::= <expr> | <expr> '\n' <prog>
+    <expr>   ::= <term> | <term> '+' <term> | <term> '-' <term> | <ident> '=' <expr>
+    <term>   ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
+    <factor> ::= <digit> | <ident> | '(' <expr> ')'
+    <ident>  ::= '\w+'
+    <digit>  ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
+** Tasks
+*** TODO Refactor token creation.
+    When adding a newline token, notice that you must add code to (at least) three places:
+    - token definition in token.h
+    - chartype() in token.c
+    - 'read_next(lexer*) in lexer.c
+    We should strive for code that minimizes this.
+
+** Notes
+   
+How do I execute a statement list?
