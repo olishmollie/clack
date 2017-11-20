@@ -52,11 +52,21 @@ static char advance(lexer* l)
     }
 }
 
+static int is_space(char c)
+{
+    return c == ' ' || c == '\t';
+}
+
 static void skip_whitespace(lexer *l)
 {
-    while (isspace(curr_char(l))) {
+    while (is_space(curr_char(l))) {
         advance(l);
     }
+}
+
+static int is_newline(char c)
+{
+    return c == '\n' || c == '\r';
 }
 
 static int isop(char c)
@@ -99,6 +109,8 @@ static toktype chartype(char c)
 	}
     } else if (isalpha(c)) {
         return IDENT;
+    } else if (is_newline(c)) {
+	return NWLN;
     }
     return -1;
 }
@@ -159,6 +171,8 @@ static token *read_next(lexer *l)
 	result = token_new(chartype(advance(l)), 0, NULL, NULL);
     } else if (isalpha(c)) {
         result = read_ident(l);
+    } else if (is_newline(c)) {
+	result = token_new(chartype(advance(l)), 0, NULL, NULL);
     } else {
         result = lexer_error(l, c);
         advance(l);

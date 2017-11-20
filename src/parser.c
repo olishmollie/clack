@@ -123,8 +123,11 @@ statement_list *block(lexer *l)
     statement_list *sl = statement_list_new();
     statement_list_add_statement(sl, expr(l));
     while (token_gettype(lexer_currtok(l)) == NWLN) {
-	expect(l, NWLN);
-	statement_list_add_statement(sl, expr(l));
+        expect(l, NWLN);
+        if (token_gettype(lexer_currtok(l)) == NWLN) {
+            break;
+        }
+        statement_list_add_statement(sl, expr(l));
     }
     return sl;
 }
