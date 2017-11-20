@@ -6,7 +6,7 @@
 #include "../headers/lexer.h"
 #include "../headers/ast.h"
 
-static ast *error(lexer *l, token *unexpected)
+static statement *error(lexer *l, token *unexpected)
 {
     lexer_halt(l);
     char *toktype = tokname(token_gettype(unexpected));
@@ -15,7 +15,7 @@ static ast *error(lexer *l, token *unexpected)
         toktype, lexer_getline(l), lexer_getcol(l) - 1); /* TODO: HACK!! */
     msg = realloc(msg, strlen(msg) + 1);
     token *err = token_new(ERR, 0, NULL, msg);
-    return ast_err(err);
+    return statement_err(err);
 }
 
 static void expect(lexer *l, toktype expected)
@@ -29,18 +29,18 @@ static void expect(lexer *l, toktype expected)
     }
 }
 
-ast *expr(lexer *l);
+statement *expr(lexer *l);
 
-ast *variable(lexer *l)
+statement *variable(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
-    return ast_var(curr);
+    return statement_var(curr);
 }
 
-ast *factor(lexer *l)
+statement *factor(lexer *l)
 {
-    ast *result = NULL;
+    statement *result = NULL;
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
@@ -49,32 +49,32 @@ ast *factor(lexer *l)
         expect(l, RPAREN);
     } else if (curr_type == NUMBER) {
         expect(l, NUMBER);
-        result = ast_num(curr);
+        result = statement_num(curr);
     } else if (curr_type == PLUS) {
 	expect(l, PLUS);
-	result = ast_unaryop(curr, factor(l));
+	result = statement_unaryop(curr, factor(l));
     } else if (curr_type == MINUS) {
         expect(l, MINUS);
-        result = ast_unaryop(curr, factor(l));
+        result = statement_unaryop(curr, factor(l));
     } else if (curr_type == IDENT) {
         result = variable(l);
     } else if (curr_type == ERR) {
         expect(l, ERR);
-        result = ast_err(curr);
+        result = statement_err(curr);
     } else {
         result = error(l, curr);
     }
     return result;
 }
 
-ast *term(lexer *l)
+statement *term(lexer *l)
 {
-    ast *left = factor(l);
+    statement *left = factor(l);
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == TIMES || curr_type == DIVIDE) {
         token *op;
-        ast *right;
+        statement *right;
         if (curr_type == TIMES) {
             expect(l, TIMES);
             op = curr;
@@ -84,20 +84,20 @@ ast *term(lexer *l)
             op = curr;
             right = factor(l);
         }
-        left = ast_binop(op, left, right);
+        left = statement_binop(op, left, right);
         curr = lexer_currtok(l);
         curr_type = token_gettype(curr);
     }
     return left;
 }
 
-ast *expr(lexer *l)
+statement *expr(lexer *l)
 {
-    ast *left = term(l);
+    statement *left = term(l);
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == PLUS || curr_type == MINUS || curr_type == EQUALS) {
-        token *op; ast *right;
+        token *op; statement *right;
         if (curr_type == PLUS) {
             expect(l, PLUS);
             op = curr;
@@ -111,14 +111,25 @@ ast *expr(lexer *l)
             op = curr;
             right = expr(l);
         }
-        left = ast_binop(op, left, right);
+        left = statement_binop(op, left, right);
         curr = lexer_currtok(l);
         curr_type = token_gettype(curr);
     }
     return left;
 }
 
-ast *parse(lexer *l) {
-    return expr(l);
+statement_list *block(lexer *l)
+{
+    statement_list *sl = statement_list_new();
+    statement_list_add_statement(sl, expr(l));
+    while (token_gettype(lexer_currtok(l)) == NWLN) {
+	expect(l, NWLN);
+	statement_list_add_statement(sl, expr(l));
+    }
+    return sl;
+}
+
+statement_list *parse(lexer *l) {
+    return block(l);
 }
 

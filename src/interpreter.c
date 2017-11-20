@@ -7,9 +7,17 @@
 #include "../headers/table.h"
 #include "../headers/interpreter.h"
 
-int visit(ast *a, table *t)
+void visit_statement_list(statement_list *sl, table *t)
 {
-    toktype curr_type = ast_gettype(a);
+    int i;
+    for (i = 0; i < sl->num_statements; i++) {
+	visit(sl->statements[i], t);
+    }
+}
+
+int visit(statement *a, table *t)
+{
+    toktype curr_type = statement_gettype(a);
     int val; char *name = NULL, *err = NULL;
     switch (curr_type) {
 	case PLUS:

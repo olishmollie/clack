@@ -44,9 +44,12 @@ char *token_geterr(token *t)
 
 char *tokname(toktype t)
 {
-    char *names[] = { "NUMBER", "PLUS", "MINUS", "TIMES",
-		    "DIVIDE", "EQUALS", "LPAREN", "RPAREN",
-		    "IDENT", "ERR", "END", "NWLN", "NOOP" };
+    char *names[] = {
+	"NUMBER", "PLUS", "MINUS", "TIMES",
+	"DIVIDE", "EQUALS", "LPAREN", "RPAREN",
+	"LBRACE", "RBRACE" "IDENT", "ERR",
+	"END", "NWLN", "NOOP"
+    };
     return names[t];
 }
 

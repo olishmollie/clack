@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "table.h"
 
-int visit(ast*, table*);
+void visit_statement_list(statement_list*, table*);
+int visit(statement*, table*);
 
 #endif

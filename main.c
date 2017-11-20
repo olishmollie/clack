@@ -9,7 +9,7 @@
 #include "headers/table.h"
 #include "headers/interpreter.h"
 
-int main(void)
+void repl()
 {
     table *t = table_new();
 
@@ -20,15 +20,26 @@ int main(void)
 	lexer *l = lexer_new(input);
 
 	while (!lexer_eof(l)) {
-	    ast *res = parse(l);
-	    printf("%d\n", visit(res, t));
-	    ast_delete(res);
+	    statement_list *res = parse(l);
+	    int i;
+	    for (i = 0; i < res->num_statements; i++) {
+		statement_print(res->statements[i]);
+	    }
+	    statement_list_delete(res);
 	}
 
 	lexer_delete(l);
     }
 
     table_delete(t);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc <= 1) {
+	repl();
+	exit(0);
+    }
 
     return 0;
 }

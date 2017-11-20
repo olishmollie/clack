@@ -1,24 +1,33 @@
-#ifndef ast_h
-#define ast_h
+#ifndef statement_h
+#define statement_h
 
 #include "token.h"
 
-typedef struct ast_t ast;
-struct ast_t {
+typedef struct ast_statement_t statement;
+struct ast_statement_t {
     token *root;
-    ast *left;
-    ast *right;
+    statement *left;
+    statement *right;
+};
+
+typedef struct ast_list_t statement_list;
+struct ast_list_t {
+    statement **statements;
+    int num_statements;
 };
 
 
-ast *ast_binop(token*, ast*, ast*);
-ast *ast_unaryop(token*, ast*);
-ast *ast_num(token*);
-ast *ast_var(token*);
-ast *ast_err(token*);
-toktype ast_gettype(ast*);
-void ast_print(ast*);
+statement *statement_binop(token*, statement*, statement*);
+statement *statement_unaryop(token*, statement*);
+statement *statement_num(token*);
+statement *statement_var(token*);
+statement *statement_err(token*);
+toktype statement_gettype(statement*);
+void statement_print(statement*);
+void statement_delete(statement*);
 
-void ast_delete(ast*);
+statement_list *statement_list_new();
+void statement_list_add_statement(statement_list*, statement*);
+void statement_list_delete(statement_list*);
 
 #endif

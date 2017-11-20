@@ -70,27 +70,34 @@ static int isparen(char c)
     return c == '(' || c == ')';
 }
 
+static int isbrace(char c)
+{
+    return c == '{' || c == '}';
+}
+
 static toktype chartype(char c)
 {
     if (isop(c)) {
 	switch(c) {
-	    case '+': return PLUS;
-	    case '-': return MINUS;
-	    case '*': return TIMES;
-	    case '/': return DIVIDE;
+	case '+': return PLUS;
+	case '-': return MINUS;
+	case '*': return TIMES;
+	case '/': return DIVIDE;
         case '=': return EQUALS;
 	}
-    }
-    else if (isdigit(c)) {
+    } else if (isdigit(c)) {
         return NUMBER;
-    }
-    else if (isparen(c)) {
+    } else if (isparen(c)) {
         switch(c) {
-            case '(': return LPAREN;
-            case ')': return RPAREN;
+	case '(': return LPAREN;
+	case ')': return RPAREN;
         }
-    }
-    else if (isalpha(c)) {
+    } else if (isbrace(c)) {
+	switch(c) {
+	case '{': return LBRACE;
+	case '}': return RBRACE;
+	}
+    } else if (isalpha(c)) {
         return IDENT;
     }
     return -1;
@@ -142,17 +149,15 @@ static token *read_next(lexer *l)
     char c = curr_char(l);
     if (c == '\0') {
 	result = token_new(END, 0, NULL, NULL);
-    }
-    else if (isdigit(c)) {
+    } else if (isdigit(c)) {
         result = read_digit(l);
-    }
-    else if (isop(c)) {
+    } else if (isop(c)) {
         result = token_new(chartype(advance(l)), 0, NULL, NULL);
-    }
-    else if (isparen(c)) {
+    } else if (isparen(c)) {
         result = token_new(chartype(advance(l)), 0, NULL, NULL);
-    }
-    else if (isalpha(c)) {
+    } else if (isbrace(c)) {
+	result = token_new(chartype(advance(l)), 0, NULL, NULL);
+    } else if (isalpha(c)) {
         result = read_ident(l);
     } else {
         result = lexer_error(l, c);
