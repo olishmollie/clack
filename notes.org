@@ -12,11 +12,15 @@
 ** Tasks
 *** TODO Refactor token creation.
     When adding a newline token, notice that you must add code to (at least) three places:
-    - token definition in token.h
+    - token definition in token.
     - chartype() in token.c
     - 'read_next(lexer*) in lexer.c
     We should strive for code that minimizes this.
 
+*** DONE Handle EOF
+    CLOSED: [2017-11-20 Mon 12:15]
+    Right now, two newline characters are necessary to tell the interpreter that there is no
+    more code to parse. We need to figure out how to end it with just one new line, or none.
+
 ** Notes
-   
-How do I execute a statement list?
+  
