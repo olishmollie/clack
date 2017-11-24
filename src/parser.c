@@ -54,10 +54,10 @@ ast *funcall(lexer *l, token *n)
 
     expect(l, LPAREN);
 
-    argv[argc++] = variable(l);
+    argv[argc++] = expr(l);
     while (token_gettype(lexer_currtok(l)) == COMMA) {
         expect(l, COMMA);
-        argv[argc++] = variable(l);
+        argv[argc++] = expr(l);
     }
 
     expect(l, RPAREN);
