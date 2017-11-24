@@ -32,7 +32,7 @@ ast *expr(lexer*);
 
 ast *funcall(lexer*, token*);
 
-ast *variable(lexer *l)
+ast *ident(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
@@ -45,24 +45,19 @@ ast *variable(lexer *l)
 
 ast *funcall(lexer *l, token *n)
 {
-    int argc = 0;
-    ast **argv = calloc((size_t)MAXPARAMS, sizeof(ast*));
-    if (argv == NULL) {
-        fprintf(stderr, "error: not enough memory for params in funcall()\n");
-        return NULL;
-    }
+    ast *f = ast_funcall(n);
 
     expect(l, LPAREN);
+    ast_addparam(f, expr(l));
 
-    argv[argc++] = expr(l);
     while (token_gettype(lexer_currtok(l)) == COMMA) {
         expect(l, COMMA);
-        argv[argc++] = expr(l);
+        ast_addparam(f, expr(l));
     }
 
     expect(l, RPAREN);
 
-    return ast_funcall(n, argc, argv);
+    return f;
 }
 
 ast *factor(lexer *l)
@@ -84,7 +79,7 @@ ast *factor(lexer *l)
         expect(l, MINUS);
         result = ast_unaryop(curr, factor(l));
     } else if (curr_type == IDENT) {
-        result = variable(l);
+        result = ident(l);
     } else if (curr_type == ERR) {
         expect(l, ERR);
         result = ast_err(curr);

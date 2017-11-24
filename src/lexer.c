@@ -90,6 +90,13 @@ static int iscomma(char c)
     return c == ',';
 }
 
+static int iscomment(char c)
+{
+    return c == '#';
+}
+
+
+
 static toktype chartype(char c)
 {
     if (isop(c)) {
@@ -118,6 +125,8 @@ static toktype chartype(char c)
         return IDENT;
     } else if (is_newline(c)) {
         return NWLN;
+    } else if (iscomment(c)) {
+        return COMMENT;
     }
     return -1;
 }
@@ -154,6 +163,18 @@ static token *read_ident(lexer *l)
     return i;
 }
 
+static void skip_comment(lexer *l)
+{
+    char c = curr_char(l);
+
+    while (chartype(c) != NWLN) {
+        advance(l);
+        c = curr_char(l);
+    }
+
+    advance(l);
+}
+
 static token *lexer_error(lexer *l, char c)
 {
     char *msg = malloc(MAXBUFSIZE*sizeof(char));
@@ -170,7 +191,7 @@ static token *read_next(lexer *l)
     token *result = NULL;
     char c = curr_char(l);
     if (c == '\0') {
-	result = token_new(END, 0, NULL, NULL);
+        result = token_new(END, 0, NULL, NULL);
     } else if (isdigit(c)) {
         result = read_digit(l);
     } else if (isop(c)) {
@@ -178,13 +199,16 @@ static token *read_next(lexer *l)
     } else if (isparen(c)) {
         result = token_new(chartype(advance(l)), 0, NULL, NULL);
     } else if (isbrace(c)) {
-	result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = token_new(chartype(advance(l)), 0, NULL, NULL);
     } else if (isalpha(c)) {
         result = read_ident(l);
     } else if (is_newline(c)) {
         result = token_new(chartype(advance(l)), 0, NULL, NULL);
     } else if (iscomma(c)) {
         return token_new(chartype(advance(l)), 0, NULL, NULL);
+    } else if (iscomment(c)) {
+        advance(l);
+        skip_comment(l);
     } else {
         result = lexer_error(l, c);
         advance(l);

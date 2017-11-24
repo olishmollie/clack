@@ -19,7 +19,7 @@ struct ast_ast_t {
 ast *ast_prog();
 void ast_addparam(ast*, ast*);
 void ast_addchild(ast*, ast*);
-ast *ast_funcall(token*, int, ast**);
+ast *ast_funcall(token*);
 ast *ast_binop(token*, ast*, ast*);
 ast *ast_unaryop(token*, ast*);
 ast *ast_num(token*);

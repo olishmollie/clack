@@ -37,15 +37,15 @@ void ast_addchild(ast *sl, ast *s)
     }
 }
 
-ast *ast_funcall(token *name, int argc, ast **argv)
+ast *ast_funcall(token *name)
 {
     ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = name;
         a->left = a->right = NULL;
-        a->params = argv;
-        a->num_params = argc;
-        a->children = NULL;
+        a->params = calloc((size_t)MAXPARAMS, sizeof(ast*));
+        a->num_params = 0;
+        a->children = calloc((size_t)MAXBUFSIZE, sizeof(ast*));
         a->num_children = 0;
     }
     return a;

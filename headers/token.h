@@ -5,8 +5,8 @@
 
 typedef enum toktype {
     BEGIN, NUMBER, PLUS, MINUS, TIMES, DIVIDE, EQUALS,
-    LPAREN, RPAREN, LBRACE, RBRACE, COMMA, IDENT, ERR,
-    END, NWLN, NOOP
+    LPAREN, RPAREN, LBRACE, RBRACE, COMMA, COMMENT, IDENT,
+    ERR, END, NWLN, NOOP
 } toktype;
 char* tokname(toktype);
 
