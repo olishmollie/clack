@@ -13,19 +13,23 @@ void repl()
 {
     table *t = table_new();
 
-    char *input = readline("fig>> ");
-    add_history(input);
+    while(1) {
 
-    lexer *l = lexer_new(input);
+        char *input = readline("fig>> ");
+        add_history(input);
 
-    while (!lexer_eof(l)) {
-	    statement_list *res = parse(l);
-	    int i;
-	    for (i = 0; i < res->num_statements; i++) {
-        statement_print(res->statements[i]);
-	    }
-	    statement_list_delete(res);
-      lexer_delete(l);
+        lexer *l = lexer_new(input);
+
+        while (!lexer_eof(l)) {
+            ast *res = parse(l);
+            int i;
+            for (i = 0; i < res->num_children; i++) {
+                ast_print(res);
+            }
+            ast_delete(res);
+        }
+
+        lexer_delete(l);
     }
 
     table_delete(t);
@@ -55,17 +59,14 @@ int main(int argc, char **argv)
     }
     free(line);
 
-    table *t = table_new();
+    table *gscope = table_new();
     lexer *l = lexer_new(buf);
-    statement_list *res = parse(l);
+    ast *res = parse(l);
+    visit_prog(res, gscope);
 
-    int i;
-    for (i = 0; i < res->num_statements; i++) {
-        statement_print(res->statements[i]);
-    }
-    statement_list_delete(res);
+    ast_delete(res);
     lexer_delete(l);
-    table_delete(t);
+    table_delete(gscope);
 
     return 0;
 }

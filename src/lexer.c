@@ -85,32 +85,39 @@ static int isbrace(char c)
     return c == '{' || c == '}';
 }
 
+static int iscomma(char c)
+{
+    return c == ',';
+}
+
 static toktype chartype(char c)
 {
     if (isop(c)) {
-	switch(c) {
-	case '+': return PLUS;
-	case '-': return MINUS;
-	case '*': return TIMES;
-	case '/': return DIVIDE;
+        switch(c) {
+        case '+': return PLUS;
+        case '-': return MINUS;
+        case '*': return TIMES;
+        case '/': return DIVIDE;
         case '=': return EQUALS;
 	}
     } else if (isdigit(c)) {
         return NUMBER;
     } else if (isparen(c)) {
         switch(c) {
-	case '(': return LPAREN;
-	case ')': return RPAREN;
+        case '(': return LPAREN;
+        case ')': return RPAREN;
         }
     } else if (isbrace(c)) {
-	switch(c) {
-	case '{': return LBRACE;
-	case '}': return RBRACE;
-	}
+        switch(c) {
+        case '{': return LBRACE;
+        case '}': return RBRACE;
+        }
+    } else if (iscomma(c)) {
+        return COMMA;
     } else if (isalpha(c)) {
         return IDENT;
     } else if (is_newline(c)) {
-	return NWLN;
+        return NWLN;
     }
     return -1;
 }
@@ -134,14 +141,17 @@ static token *read_ident(lexer *l)
 {
     char* str = malloc(MAXBUFSIZE*sizeof(char));
     char c = curr_char(l);
+
     while (chartype(c) == IDENT) {
         c = advance(l);
         char tmp[2] = {c};
         strcat(str, tmp);
-	c = curr_char(l);
+        c = curr_char(l);
     }
     str = realloc(str, strlen(str));
-    return token_new(IDENT, 0, str, NULL);
+
+    token *i = token_new(IDENT, 0, str, NULL);
+    return i;
 }
 
 static token *lexer_error(lexer *l, char c)
@@ -172,7 +182,9 @@ static token *read_next(lexer *l)
     } else if (isalpha(c)) {
         result = read_ident(l);
     } else if (is_newline(c)) {
-	result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = token_new(chartype(advance(l)), 0, NULL, NULL);
+    } else if (iscomma(c)) {
+        return token_new(chartype(advance(l)), 0, NULL, NULL);
     } else {
         result = lexer_error(l, c);
         advance(l);

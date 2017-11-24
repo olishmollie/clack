@@ -5,7 +5,8 @@
 #include "ast.h"
 #include "table.h"
 
-void visit_statement_list(statement_list*, table*);
-int visit(statement*, table*);
+void visit_prog(ast*, table*);
+int visit_binop(ast*, table*);
+void visit_fun(ast*, table*);
 
 #endif

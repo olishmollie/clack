@@ -2,12 +2,20 @@
 
 ** Grammar
    
-    <prog>   ::= <expr> | <expr> '\n' <prog>
-    <expr>   ::= <term> | <term> '+' <term> | <term> '-' <term> | <ident> '=' <expr>
-    <term>   ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
-    <factor> ::= <digit> | <ident> | '(' <expr> ')'
-    <ident>  ::= '\w+'
-    <digit>  ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+    <prog>    ::= <expr> | <expr> '\n' <prog>
+
+    <expr>    ::= <term> | <term> '+' <term> | <term> '-' <term> | 
+                  <ident> '=' <expr> | <builtin> 
+
+    <builtin> ::= 'print' '(' <expr> ')'
+
+    <term>    ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
+
+    <factor>  ::= <digit> | <ident> | '(' <expr> ')' | <call>
+
+    <ident>   ::= '\w+'
+
+    <digit>   ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 ** Tasks
 *** TODO Refactor token creation.
@@ -23,4 +31,8 @@
     more code to parse. We need to figure out how to end it with just one new line, or none.
 
 ** Notes
+   How do we implement builtin functions, like print()? Possiblilites:
+   - Interpreter maps ident tokens to builtin functions
+   - Parser maps ident tokens and <call> becomes a factor
+   - Lexer creates function token by checking a list of builtins
   

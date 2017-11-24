@@ -45,10 +45,10 @@ char *token_geterr(token *t)
 char *tokname(toktype t)
 {
     char *names[] = {
-	"NUMBER", "PLUS", "MINUS", "TIMES",
-	"DIVIDE", "EQUALS", "LPAREN", "RPAREN",
-	"LBRACE", "RBRACE", "IDENT", "ERR",
-	"END", "NWLN", "NOOP"
+        "BEGIN", "NUMBER", "PLUS", "MINUS", "TIMES",
+        "DIVIDE", "EQUALS", "LPAREN", "RPAREN",
+        "LBRACE", "RBRACE", "COMMA", "IDENT", "ERR",
+        "END", "NWLN", "NOOP"
     };
     return names[t];
 }
@@ -64,13 +64,11 @@ char *token_str(token *t)
 void token_delete(token* t)
 {
     if (t) {
-        if (t->err) {
-	    free(t->err);
-        }
-        if (t->name) {
+        if (t->err)
+            free(t->err);
+        if (t->name)
             free(t->name);
-        }
-	free(t);
+        free(t);
     }
 }
 

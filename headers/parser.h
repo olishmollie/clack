@@ -4,9 +4,9 @@
 #include "ast.h"
 #include "lexer.h"
 
-statement *factor(lexer*);
-statement *term(lexer*);
-statement *expr(lexer*);
-statement_list *parse(lexer*);
+/* ast *factor(lexer*); */
+/* ast *term(lexer*); */
+/* ast *expr(lexer*); */
+ast *parse(lexer*);
 
 #endif

@@ -4,8 +4,8 @@
 #define MAXBUFSIZE 500
 
 typedef enum toktype {
-    NUMBER, PLUS, MINUS, TIMES, DIVIDE, EQUALS,
-    LPAREN, RPAREN, LBRACE, RBRACE, IDENT, ERR,
+    BEGIN, NUMBER, PLUS, MINUS, TIMES, DIVIDE, EQUALS,
+    LPAREN, RPAREN, LBRACE, RBRACE, COMMA, IDENT, ERR,
     END, NWLN, NOOP
 } toktype;
 char* tokname(toktype);
