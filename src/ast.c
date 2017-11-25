@@ -13,19 +13,8 @@ ast *ast_prog()
         b->left = b->right = NULL;
         b->children = malloc(MAXBUFSIZE*sizeof(ast*));
         b->num_children = 0;
-        b->params = NULL;
-        b->num_params = 0;
     }
     return b;
-}
-
-void ast_addparam(ast *f, ast *p)
-{
-    if (f->num_children < MAXPARAMS) {
-        f->params[f->num_params++] = p;
-    } else {
-        fprintf(stderr, "error: too many params added to fn\n");
-    }
 }
 
 void ast_addchild(ast *sl, ast *s)
@@ -35,20 +24,6 @@ void ast_addchild(ast *sl, ast *s)
     } else {
         fprintf(stderr, "error: too many asts added to prog\n");
     }
-}
-
-ast *ast_funcall(token *name)
-{
-    ast *a = malloc(sizeof(ast));
-    if (a) {
-        a->root = name;
-        a->left = a->right = NULL;
-        a->params = calloc((size_t)MAXPARAMS, sizeof(ast*));
-        a->num_params = 0;
-        a->children = calloc((size_t)MAXBUFSIZE, sizeof(ast*));
-        a->num_children = 0;
-    }
-    return a;
 }
 
 ast *ast_binop(token *root, ast *left, ast *right)
@@ -89,8 +64,6 @@ ast *ast_num(token *n)
         a->left = a->right = NULL;
         a->children = NULL;
         a->num_children = 0;
-        a->children = NULL;
-        a->num_children = 0;
     }
     return a;
 }
@@ -101,8 +74,6 @@ ast *ast_var(token *v)
     if (a) {
         a->root = v;
         a->left = a->right = NULL;
-        a->children = NULL;
-        a->num_children = 0;
         a->children = NULL;
         a->num_children = 0;
     }
@@ -117,8 +88,6 @@ ast *ast_err(token *e)
         a->left = a->right = NULL;
         a->children = NULL;
         a->num_children = 0;
-        a->params = NULL;
-        a->num_params = 0;
     }
     return a;
 }
@@ -131,8 +100,6 @@ ast *ast_noop()
         a->left = a->right = NULL;
         a->children = NULL;
         a->num_children = 0;
-        a->params = NULL;
-        a->num_params = 0;
     }
     return a;
 }

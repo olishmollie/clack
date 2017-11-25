@@ -2,16 +2,14 @@
 
 ** Grammar
    
-    <prog>    ::= <expr> | <expr> '\n' <prog>
+    <prog>    ::= <expr> '\n'| <expr> <prog>
 
     <expr>    ::= <term> | <term> '+' <term> | <term> '-' <term> | 
-                  <ident> '=' <expr> | <builtin> 
-
-    <builtin> ::= 'print' '(' <expr> ')'
+                  <ident> '=' <expr>
 
     <term>    ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
 
-    <factor>  ::= <digit> | <ident> | '(' <expr> ')' | <call>
+    <factor>  ::= <digit> | <ident> | '(' <expr> ')'
 
     <ident>   ::= '\w+'
 

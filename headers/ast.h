@@ -10,8 +10,6 @@ struct ast_ast_t {
     token *root;
     ast *left;
     ast *right;
-    ast **params;
-    int num_params;
     ast **children;
     int num_children;
 };

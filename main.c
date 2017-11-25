@@ -10,8 +10,6 @@
 
 void repl()
 {
-    table *t = table_new();
-
     while(1) {
 
         char *input = readline("fig>> ");
@@ -27,8 +25,6 @@ void repl()
 
         lexer_delete(l);
     }
-
-    table_delete(t);
 }
 
 int main(int argc, char **argv)

@@ -12,9 +12,13 @@ static void error(lexer *l, token *unexpected)
 {
     err = 1;
     lexer_halt(l);
-    char *toktype = tokname(token_gettype(unexpected));
-    fprintf(stderr, "Parser error: unexpected %s (%d|%d)\n",
-            toktype, lexer_getline(l), lexer_getcol(l) - 1); /* TODO: Improve getcol */
+    if (token_gettype(unexpected) == ERR) {
+        fprintf(stderr, "%s\n", token_geterr(unexpected));
+    } else {
+        char *toktype = tokname(token_gettype(unexpected));
+        fprintf(stderr, "Parser error: unexpected %s (%d|%d)\n",
+                toktype, lexer_getline(l), lexer_getcol(l) - 1);
+    }
 }
 
 static void expect(lexer *l, toktype expected)
@@ -61,6 +65,7 @@ ast *factor(lexer *l)
     } else if (curr_type == IDENT) {
         result = symbol(l);
     } else if (curr_type == NWLN) {
+        expect(l, NWLN);
         result = ast_noop();
     } else {
         error(l, curr);
@@ -129,11 +134,8 @@ ast *prog(lexer *l)
         return NULL;
     }
 
-    while (token_gettype(lexer_currtok(l)) == NWLN) {
+    while (token_gettype(lexer_currtok(l)) != END) {
         expect(l, NWLN);
-        if (token_gettype(lexer_currtok(l)) == END)
-            break;
-
         ast_addchild(sl, expr(l));
         if (err) {
             ast_delete(sl);

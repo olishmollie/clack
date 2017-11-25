@@ -156,7 +156,7 @@ static void skip_comment(lexer *l)
     advance(l);
     char c = curr_char(l);
 
-    while (c == '\n') {
+    while (c != '\n') {
         advance(l);
         c = curr_char(l);
     }
@@ -219,13 +219,16 @@ static token *read_next(lexer *l)
         result = read_ident(l);
     } else if (is_newline(c)) {
         result = token_new(NWLN, NULL, NULL);
+        advance(l);
     } else if (iscomma(c)) {
-        return token_new(COMMA, NULL, NULL);
+        result = token_new(COMMA, NULL, NULL);
+        advance(l);
     } else if (ispound(c)) {
         skip_comment(l);
         result = read_next(l);
     } else {
         result = error_token(l, c);
+        advance(l);
     }
     return result;
 }
