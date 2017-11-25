@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "../headers/token.h"
 #include "../headers/lexer.h"
@@ -16,7 +14,7 @@ static void error(lexer *l, token *unexpected)
         fprintf(stderr, "%s\n", token_geterr(unexpected));
     } else {
         char *toktype = tokname(token_gettype(unexpected));
-        fprintf(stderr, "Parser error: unexpected %s (%d|%d)\n",
+        fprintf(stderr, "error: unexpected %s (%d|%d)\n",
                 toktype, lexer_getline(l), lexer_getcol(l) - 1);
     }
 }
