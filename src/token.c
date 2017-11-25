@@ -5,19 +5,17 @@
 
 struct token_t {
     toktype type;
-    int value;
-    char *name;
+    char *value;
     char *err;
 };
 
-token *token_new(toktype type, int value, char *name, char *err)
+token *token_new(toktype type, char *value, char *err)
 {
     token *t = malloc(sizeof(token));
     if (t) {
         t->type = type;
         t->value = value;
-	t->name = name;
-	t->err = err;
+        t->err = err;
     }
     return t;
 }
@@ -27,14 +25,9 @@ toktype token_gettype(token* t)
     return t ? t->type : NOOP;
 }
 
-int token_getvalue(token *t)
+char *token_getvalue(token *t)
 {
     return t->value;
-}
-
-char *token_getname(token *t)
-{
-    return t->name;
 }
 
 char *token_geterr(token *t)
@@ -45,9 +38,9 @@ char *token_geterr(token *t)
 char *tokname(toktype t)
 {
     char *names[] = {
-        "BEGIN", "NUMBER", "PLUS", "MINUS", "TIMES",
+        "MAIN", "INT", "FLOAT", "PLUS", "MINUS", "TIMES",
         "DIVIDE", "EQUALS", "LPAREN", "RPAREN",
-        "LBRACE", "RBRACE", "COMMA", "COMMENT", "IDENT",
+        "LBRACE", "RBRACE", "COMMA", "POUND", "IDENT",
         "ERR", "END", "NWLN", "NOOP"
     };
     return names[t];
@@ -56,8 +49,8 @@ char *tokname(toktype t)
 char *token_str(token *t)
 {
     char *buf = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(buf, MAXBUFSIZE, "<type: %s, value: %d, name: '%s', err: '%s'>",
-	    tokname(t->type), t->value, t->name, t->err);
+    snprintf(buf, MAXBUFSIZE, "<type: %s, value: '%s', err: '%s'>",
+	    tokname(t->type), t->value, t->err);
     return buf;
 }
 
@@ -66,8 +59,8 @@ void token_delete(token* t)
     if (t) {
         if (t->err)
             free(t->err);
-        if (t->name)
-            free(t->name);
+        if (t->value)
+            free(t->value);
         free(t);
     }
 }

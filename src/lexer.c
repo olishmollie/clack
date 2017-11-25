@@ -85,65 +85,54 @@ static int isbrace(char c)
     return c == '{' || c == '}';
 }
 
+static int isdot(char c)
+{
+    return c == '.';
+}
+
 static int iscomma(char c)
 {
     return c == ',';
 }
 
-static int iscomment(char c)
+static int ispound(char c)
 {
     return c == '#';
 }
 
-
-
-static toktype chartype(char c)
+static token *error_token(lexer *l, char c)
 {
-    if (isop(c)) {
-        switch(c) {
-        case '+': return PLUS;
-        case '-': return MINUS;
-        case '*': return TIMES;
-        case '/': return DIVIDE;
-        case '=': return EQUALS;
-	}
-    } else if (isdigit(c)) {
-        return NUMBER;
-    } else if (isparen(c)) {
-        switch(c) {
-        case '(': return LPAREN;
-        case ')': return RPAREN;
-        }
-    } else if (isbrace(c)) {
-        switch(c) {
-        case '{': return LBRACE;
-        case '}': return RBRACE;
-        }
-    } else if (iscomma(c)) {
-        return COMMA;
-    } else if (isalpha(c)) {
-        return IDENT;
-    } else if (is_newline(c)) {
-        return NWLN;
-    } else if (iscomment(c)) {
-        return COMMENT;
-    }
-    return -1;
+    char *msg = malloc(MAXBUFSIZE*sizeof(char));
+    snprintf(msg, (size_t)MAXBUFSIZE, "Unexpected '%c' at (%d|%d)",
+             c, lexer_getline(l), lexer_getcol(l));
+    token *err = token_new(ERR, NULL, msg);
+    return err;
 }
 
 static token *read_digit(lexer *l)
 {
-    token *t;
-    int i = 0, val = 0;
+    char* num = malloc(MAXBUFSIZE*sizeof(char));
     char c = curr_char(l);
-    while (chartype(c) == NUMBER) {
-        c = advance(l);
-        val *= (10 * (i + 1));
-        val += c - '0';
+    int hasdot = 0;
+
+    char tmp[2] = {c};
+    strcat(num, tmp);
+    advance(l);
+    c = curr_char(l);
+
+    while (isdigit(c) || isdot(c)) {
+        if (c == '.') {
+            if (hasdot)
+                return error_token(l, c);
+            hasdot = 1;
+        }
+        char tmp[2] = {c};
+        strcat(num, tmp);
+        advance(l);
         c = curr_char(l);
     }
-    t = token_new(NUMBER, val, NULL, NULL);
-    return t;
+
+    return hasdot ? token_new(FLOAT, num, NULL) : token_new(INT, num, NULL);
 }
 
 static token *read_ident(lexer *l)
@@ -151,7 +140,7 @@ static token *read_ident(lexer *l)
     char* str = malloc(MAXBUFSIZE*sizeof(char));
     char c = curr_char(l);
 
-    while (chartype(c) == IDENT) {
+    while (isalpha(c)) {
         c = advance(l);
         char tmp[2] = {c};
         strcat(str, tmp);
@@ -159,15 +148,15 @@ static token *read_ident(lexer *l)
     }
     str = realloc(str, strlen(str));
 
-    token *i = token_new(IDENT, 0, str, NULL);
-    return i;
+    return token_new(IDENT, str, NULL);
 }
 
 static void skip_comment(lexer *l)
 {
+    advance(l);
     char c = curr_char(l);
 
-    while (chartype(c) != NWLN) {
+    while (c == '\n') {
         advance(l);
         c = curr_char(l);
     }
@@ -175,14 +164,40 @@ static void skip_comment(lexer *l)
     advance(l);
 }
 
-static token *lexer_error(lexer *l, char c)
+static token *op_token(char c)
 {
-    char *msg = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(msg, (size_t)MAXBUFSIZE,
-	"Unexpected '%c' at (%d|%d)",
-	c, lexer_getline(l), lexer_getcol(l));
-    token *err = token_new(ERR, -1, NULL, msg);
-    return err;
+    toktype op;
+    switch(c) {
+    case '+': op = PLUS; break;
+    case '-': op = MINUS; break;
+    case '*': op = TIMES; break;
+    case '/': op = DIVIDE; break;
+    case '=': op = EQUALS; break;
+    }
+
+    return token_new(op, NULL, NULL);
+}
+
+static token *paren_token(char c)
+{
+    toktype paren;
+    switch(c) {
+    case '(': paren = LPAREN; break;
+    case ')': paren = RPAREN; break;
+    }
+
+    return token_new(paren, NULL, NULL);
+}
+
+static token* brace_token(char c)
+{
+    toktype brace;
+    switch(c) {
+    case '{': brace = LBRACE; break;
+    case '}': brace = RBRACE; break;
+    }
+
+    return token_new(brace, NULL, NULL);
 }
 
 static token *read_next(lexer *l)
@@ -191,27 +206,26 @@ static token *read_next(lexer *l)
     token *result = NULL;
     char c = curr_char(l);
     if (c == '\0') {
-        result = token_new(END, 0, NULL, NULL);
+        result = token_new(END, NULL, NULL);
     } else if (isdigit(c)) {
         result = read_digit(l);
     } else if (isop(c)) {
-        result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = op_token(advance(l));
     } else if (isparen(c)) {
-        result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = paren_token(advance(l));
     } else if (isbrace(c)) {
-        result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = brace_token(advance(l));
     } else if (isalpha(c)) {
         result = read_ident(l);
     } else if (is_newline(c)) {
-        result = token_new(chartype(advance(l)), 0, NULL, NULL);
+        result = token_new(NWLN, NULL, NULL);
     } else if (iscomma(c)) {
-        return token_new(chartype(advance(l)), 0, NULL, NULL);
-    } else if (iscomment(c)) {
-        advance(l);
+        return token_new(COMMA, NULL, NULL);
+    } else if (ispound(c)) {
         skip_comment(l);
+        result = read_next(l);
     } else {
-        result = lexer_error(l, c);
-        advance(l);
+        result = error_token(l, c);
     }
     return result;
 }
@@ -250,7 +264,7 @@ int lexer_eof(lexer* l)
 
 void lexer_halt(lexer* l)
 {
-    l->currtok = token_new(END, 0, NULL, NULL);
+    l->currtok = token_new(END, NULL, NULL);
 }
 
 void lexer_delete(lexer *l)
@@ -258,6 +272,6 @@ void lexer_delete(lexer *l)
     if (l) {
         if (l->input)
             free(l->input);
-	free(l);
+        free(l);
     }
 }

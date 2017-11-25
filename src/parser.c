@@ -6,16 +6,15 @@
 #include "../headers/lexer.h"
 #include "../headers/ast.h"
 
-static ast *error(lexer *l, token *unexpected)
+int err;
+
+static void error(lexer *l, token *unexpected)
 {
+    err = 1;
     lexer_halt(l);
     char *toktype = tokname(token_gettype(unexpected));
-    char *msg = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(msg, MAXBUFSIZE, "Parser error: unexpected %s (%d|%d)",
-        toktype, lexer_getline(l), lexer_getcol(l) - 1);
-    msg = realloc(msg, strlen(msg) + 1);
-    token *err = token_new(ERR, 0, NULL, msg);
-    return ast_err(err);
+    fprintf(stderr, "Parser error: unexpected %s (%d|%d)\n",
+            toktype, lexer_getline(l), lexer_getcol(l) - 1); /* TODO: Improve getcol */
 }
 
 static void expect(lexer *l, toktype expected)
@@ -28,37 +27,15 @@ static void expect(lexer *l, toktype expected)
         error(l, curr);
     }
 }
-ast *expr(lexer*);
 
-ast *funcall(lexer*, token*);
-
-ast *ident(lexer *l)
+ast *symbol(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
-    if (token_gettype(lexer_currtok(l)) == LPAREN) {
-        return funcall(l, curr);
-    } else {
-        return ast_var(curr);
-    }
+    return ast_var(curr);
 }
 
-ast *funcall(lexer *l, token *n)
-{
-    ast *f = ast_funcall(n);
-
-    expect(l, LPAREN);
-    ast_addparam(f, expr(l));
-
-    while (token_gettype(lexer_currtok(l)) == COMMA) {
-        expect(l, COMMA);
-        ast_addparam(f, expr(l));
-    }
-
-    expect(l, RPAREN);
-
-    return f;
-}
+ast *expr(lexer*);
 
 ast *factor(lexer *l)
 {
@@ -69,8 +46,11 @@ ast *factor(lexer *l)
         expect(l, LPAREN);
         result = expr(l);
         expect(l, RPAREN);
-    } else if (curr_type == NUMBER) {
-        expect(l, NUMBER);
+    } else if (curr_type == INT) {
+        expect(l, INT);
+        result = ast_num(curr);
+    } else if (curr_type == FLOAT) {
+        expect(l, FLOAT);
         result = ast_num(curr);
     } else if (curr_type == PLUS) {
         expect(l, PLUS);
@@ -79,12 +59,11 @@ ast *factor(lexer *l)
         expect(l, MINUS);
         result = ast_unaryop(curr, factor(l));
     } else if (curr_type == IDENT) {
-        result = ident(l);
-    } else if (curr_type == ERR) {
-        expect(l, ERR);
-        result = ast_err(curr);
+        result = symbol(l);
+    } else if (curr_type == NWLN) {
+        result = ast_noop();
     } else {
-        result = error(l, curr);
+        error(l, curr);
     }
     return result;
 }
@@ -143,18 +122,29 @@ ast *expr(lexer *l)
 ast *prog(lexer *l)
 {
     ast *sl = ast_prog();
+
     ast_addchild(sl, expr(l));
+    if (err) {
+        ast_delete(sl);
+        return NULL;
+    }
+
     while (token_gettype(lexer_currtok(l)) == NWLN) {
         expect(l, NWLN);
-        if (token_gettype(lexer_currtok(l)) == END) {
+        if (token_gettype(lexer_currtok(l)) == END)
             break;
-        }
+
         ast_addchild(sl, expr(l));
+        if (err) {
+            ast_delete(sl);
+            return NULL;
+        }
     }
     return sl;
 }
 
 ast *parse(lexer *l) {
+    err = 0;
     return prog(l);
 }
 

@@ -9,7 +9,7 @@ ast *ast_prog()
 {
     ast *b = malloc(sizeof(ast));
     if (b) {
-        b->root = token_new(BEGIN, 0, NULL, NULL);
+        b->root = token_new(MAIN, NULL, NULL);
         b->left = b->right = NULL;
         b->children = malloc(MAXBUFSIZE*sizeof(ast*));
         b->num_children = 0;
@@ -117,9 +117,26 @@ ast *ast_err(token *e)
         a->left = a->right = NULL;
         a->children = NULL;
         a->num_children = 0;
+        a->params = NULL;
+        a->num_params = 0;
     }
     return a;
 }
+
+ast *ast_noop()
+{
+    ast *a = malloc(sizeof(ast));
+    if (a) {
+        a->root = token_new(NOOP, NULL, NULL);
+        a->left = a->right = NULL;
+        a->children = NULL;
+        a->num_children = 0;
+        a->params = NULL;
+        a->num_params = 0;
+    }
+    return a;
+}
+
 toktype ast_gettype(ast *a)
 {
     return a ? token_gettype(a->root) : NOOP;
@@ -130,11 +147,13 @@ static void ast_print_recurse(ast *a, int n, char *ident)
     /* TODO: Fix formatting/indentation */
     if (!a) return;
     char *rootstr = token_str(a->root);
-    char* indent = malloc(2*n*sizeof(char));
+    char* indent = malloc(2*n*sizeof(char)+1);
 
-    for (int i = 0; i < n; i++) {
-        strcat(indent, " ");
+    int i;
+    for (i = 0; i < 2*n; i++) {
+        indent[i] = ' ';
     }
+    indent[i] = '\0';
 
     if (ident) {
         printf("%s%s %s\n", indent, ident, rootstr);
@@ -142,7 +161,6 @@ static void ast_print_recurse(ast *a, int n, char *ident)
         printf("%s%s\n", indent, rootstr);
     }
 
-    int i;
     for (i = 0; i < a->num_children; i++) {
         ast_print_recurse(a->children[i], n+1, NULL);
     }

@@ -7,7 +7,6 @@
 #include "headers/ast.h"
 #include "headers/parser.h"
 #include "headers/table.h"
-#include "headers/interpreter.h"
 
 void repl()
 {
@@ -22,10 +21,7 @@ void repl()
 
         while (!lexer_eof(l)) {
             ast *res = parse(l);
-            int i;
-            for (i = 0; i < res->num_children; i++) {
-                ast_print(res);
-            }
+            if (res) ast_print(res);
             ast_delete(res);
         }
 
@@ -62,7 +58,7 @@ int main(int argc, char **argv)
     table *gscope = table_new();
     lexer *l = lexer_new(buf);
     ast *res = parse(l);
-    visit_prog(res, gscope);
+    if (res) ast_print(res);
 
     ast_delete(res);
     lexer_delete(l);

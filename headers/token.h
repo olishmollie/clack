@@ -4,18 +4,17 @@
 #define MAXBUFSIZE 500
 
 typedef enum toktype {
-    BEGIN, NUMBER, PLUS, MINUS, TIMES, DIVIDE, EQUALS,
-    LPAREN, RPAREN, LBRACE, RBRACE, COMMA, COMMENT, IDENT,
+    MAIN, INT, FLOAT, PLUS, MINUS, TIMES, DIVIDE, EQUALS,
+    LPAREN, RPAREN, LBRACE, RBRACE, COMMA, POUND, IDENT,
     ERR, END, NWLN, NOOP
 } toktype;
 char* tokname(toktype);
 
 typedef struct token_t token;
 
-token *token_new(toktype, int, char*, char*);
+token *token_new(toktype, char*, char*);
 toktype token_gettype(token*);
-int token_getvalue(token*);
-char *token_getname(token*);
+char *token_getvalue(token*);
 char *token_geterr(token*);
 char* token_str(token *);
 
