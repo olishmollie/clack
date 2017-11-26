@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 
 #include "../headers/token.h"
@@ -134,6 +135,8 @@ ast *prog(lexer *l)
 
     while (token_gettype(lexer_currtok(l)) != END) {
         expect(l, NWLN);
+        if (token_gettype(lexer_currtok(l)) == END)
+            break;
         ast_addchild(sl, expr(l));
         if (err) {
             ast_delete(sl);
