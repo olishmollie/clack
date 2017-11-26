@@ -31,18 +31,18 @@ static void expect(lexer *l, toktype expected)
     }
 }
 
-ast *symbol(lexer *l)
+ast_stmt *symbol(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
     return ast_var(curr);
 }
 
-ast *expr(lexer*);
+ast_stmt *expr(lexer*);
 
-ast *factor(lexer *l)
+ast_stmt *factor(lexer *l)
 {
-    ast *result = NULL;
+    ast_stmt *result = NULL;
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
@@ -72,14 +72,14 @@ ast *factor(lexer *l)
     return result;
 }
 
-ast *term(lexer *l)
+ast_stmt *term(lexer *l)
 {
-    ast *left = factor(l);
+    ast_stmt *left = factor(l);
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == TIMES || curr_type == DIVIDE) {
         token *op;
-        ast *right;
+        ast_stmt *right;
         if (curr_type == TIMES) {
             expect(l, TIMES);
             op = curr;
@@ -96,13 +96,13 @@ ast *term(lexer *l)
     return left;
 }
 
-ast *expr(lexer *l)
+ast_stmt *expr(lexer *l)
 {
-    ast *left = term(l);
+    ast_stmt *left = term(l);
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     while (curr_type == PLUS || curr_type == MINUS || curr_type == EQUALS) {
-        token *op; ast *right;
+        token *op; ast_stmt *right;
         if (curr_type == PLUS) {
             expect(l, PLUS);
             op = curr;
@@ -123,13 +123,13 @@ ast *expr(lexer *l)
     return left;
 }
 
-ast *prog(lexer *l)
+ast_stmtlist *stmt_list(lexer *l)
 {
-    ast *sl = ast_prog();
+    ast_stmtlist *sl = ast_stmtlist_new();
 
-    ast_addchild(sl, expr(l));
+    ast_stmtlist_addchild(sl, expr(l));
     if (err) {
-        ast_delete(sl);
+        ast_stmtlist_delete(sl);
         return NULL;
     }
 
@@ -137,17 +137,18 @@ ast *prog(lexer *l)
         expect(l, NWLN);
         if (token_gettype(lexer_currtok(l)) == END)
             break;
-        ast_addchild(sl, expr(l));
+        ast_stmtlist_addchild(sl, expr(l));
         if (err) {
-            ast_delete(sl);
+            ast_stmtlist_delete(sl);
             return NULL;
         }
     }
+
     return sl;
 }
 
-ast *parse(lexer *l) {
+ast_stmtlist *parse(lexer *l) {
     err = 0;
-    return prog(l);
+    return stmt_list(l);
 }
 

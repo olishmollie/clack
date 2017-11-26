@@ -4,6 +4,6 @@
 #include "ast.h"
 #include "lexer.h"
 
-ast *parse(lexer*);
+ast_stmtlist *parse(lexer*);
 
 #endif

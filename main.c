@@ -18,9 +18,9 @@ void repl()
         lexer *l = lexer_new(input);
 
         while (!lexer_eof(l)) {
-            ast *res = parse(l);
-            if (res) ast_print(res);
-            ast_delete(res);
+            ast_stmtlist *res = parse(l);
+            if (res) ast_stmtlist_print(res);
+            ast_stmtlist_delete(res);
         }
 
         lexer_delete(l);
@@ -53,10 +53,10 @@ int main(int argc, char **argv)
 
     table *gscope = table_new();
     lexer *l = lexer_new(buf);
-    ast *res = parse(l);
-    if (res) ast_print(res);
+    ast_stmtlist *res = parse(l);
+    if (res) ast_stmtlist_print(res);
 
-    ast_delete(res);
+    ast_stmtlist_delete(res);
     lexer_delete(l);
     table_delete(gscope);
 

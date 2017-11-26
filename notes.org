@@ -2,18 +2,22 @@
 
 ** Grammar
    
-    <prog>    ::= <expr> '\n'| <expr> <prog>
+    <if_stmt>   ::= 'if' '(' <cond> ') '{' <stmt_list> '}'
 
-    <expr>    ::= <term> | <term> '+' <term> | <term> '-' <term> | 
-                  <ident> '=' <expr>
+    <stmt_list> ::= <stmt>*
 
-    <term>    ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
+    <stmt>      ::= <expr> '\n'
 
-    <factor>  ::= <digit> | <ident> | '(' <expr> ')'
+    <expr>      ::= <term> | <term> '+' <term> | <term> '-' <term> | 
+                    <ident> '=' <expr>
 
-    <ident>   ::= '\w+'
+    <term>      ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
 
-    <digit>   ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+    <factor>    ::= <digit> | <ident> | '(' <expr> ')'
+
+    <ident>     ::= '\w+'
+
+    <digit>     ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 ** Tasks
 *** TODO Refactor token creation.
