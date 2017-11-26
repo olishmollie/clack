@@ -1,26 +1,26 @@
 * Fig 
 
 ** Grammar
+
+   <stmtlist> ::= <stmt>* | <assign_stmt>
+
+   <assign_stmt> ::= <ident> '=' <stmt>
+
+   <stmt>     ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr>
+
+   <expr>     ::= <term> | <term> '+' <term> | <term> '-' <term> 
    
-    <if_stmt>   ::= 'if' '(' <cond> ') '{' <stmt_list> '}'
+   <term>     ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
 
-    <stmt_list> ::= <stmt>*
+   <factor>   ::= <digit> | <ident> | '(' <expr> ')'
 
-    <stmt>      ::= <expr> '\n'
+   <ident>    ::= '\w+'
 
-    <expr>      ::= <term> | <term> '+' <term> | <term> '-' <term> | 
-                    <ident> '=' <expr>
-
-    <term>      ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
-
-    <factor>    ::= <digit> | <ident> | '(' <expr> ')'
-
-    <ident>     ::= '\w+'
-
-    <digit>     ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+   <digit>    ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 ** Tasks
-*** TODO Refactor token creation.
+*** DONE Refactor token creation.
+    CLOSED: [2017-11-25 Sat 20:29]
     When adding a newline token, notice that you must add code to (at least) three places:
     - token definition in token.
     - chartype() in token.c

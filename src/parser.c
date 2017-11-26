@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 #include "../headers/token.h"
@@ -31,14 +30,29 @@ static void expect(lexer *l, toktype expected)
     }
 }
 
+ast_stmt *symbol(lexer *l);
+ast_stmt *stmt(lexer*);
+
+ast_stmt *assign_stmt(lexer *l, token *var)
+{
+    ast_stmt *left = ast_var(var);
+    token *eq = lexer_currtok(l);
+    expect(l, ASSIGN);
+    ast_stmt *right = stmt(l);
+
+    return ast_binop(eq, left, right);
+}
+
 ast_stmt *symbol(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
-    return ast_var(curr);
+    if (token_gettype(lexer_currtok(l)) == ASSIGN) {
+        return assign_stmt(l, curr);
+    } else {
+        return ast_var(curr);
+    }
 }
-
-ast_stmt *expr(lexer*);
 
 ast_stmt *factor(lexer *l)
 {
@@ -47,7 +61,7 @@ ast_stmt *factor(lexer *l)
     toktype curr_type = token_gettype(curr);
     if (curr_type == LPAREN) {
         expect(l, LPAREN);
-        result = expr(l);
+        result = stmt(l);
         expect(l, RPAREN);
     } else if (curr_type == INT) {
         expect(l, INT);
@@ -101,20 +115,16 @@ ast_stmt *expr(lexer *l)
     ast_stmt *left = term(l);
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
-    while (curr_type == PLUS || curr_type == MINUS || curr_type == EQUALS) {
+    while (curr_type == PLUS || curr_type == MINUS) {
         token *op; ast_stmt *right;
         if (curr_type == PLUS) {
             expect(l, PLUS);
             op = curr;
             right = term(l);
-        } else if (curr_type == MINUS) {
+        } else {
             expect(l, MINUS);
             op = curr;
             right = term(l);
-        } else {
-            expect(l, EQUALS);
-            op = curr;
-            right = expr(l);
         }
         left = ast_binop(op, left, right);
         curr = lexer_currtok(l);
@@ -123,11 +133,48 @@ ast_stmt *expr(lexer *l)
     return left;
 }
 
+ast_stmt *stmt(lexer *l) {
+    ast_stmt *left = expr(l);
+    token *curr = lexer_currtok(l);
+    toktype curr_type = token_gettype(curr);
+
+    while (curr_type == EQUALS || curr_type == LT || curr_type == LTE
+           || curr_type == GT || curr_type == GTE) {
+        token *op = NULL; ast_stmt *right = NULL;
+        if (curr_type == EQUALS) {
+            expect(l, EQUALS);
+            op = curr;
+            right = expr(l);
+        } else if (curr_type == LT) {
+            expect(l, LT);
+            op = curr;
+            right = expr(l);
+        } else if (curr_type == LTE) {
+            expect(l, LTE);
+            op = curr;
+            right = expr(l);
+        } else if (curr_type == GT) {
+            expect(l, GT);
+            op = curr;
+            right = expr(l);
+        } else if (curr_type == GTE) {
+            expect(l, GTE);
+            op = curr;
+            right = expr(l);
+        }
+        left = ast_binop(op, left, right);
+        curr = lexer_currtok(l);
+        curr_type = token_gettype(curr);
+    }
+
+    return left;
+}
+
 ast_stmtlist *stmt_list(lexer *l)
 {
     ast_stmtlist *sl = ast_stmtlist_new();
 
-    ast_stmtlist_addchild(sl, expr(l));
+    ast_stmtlist_addchild(sl, stmt(l));
     if (err) {
         ast_stmtlist_delete(sl);
         return NULL;
@@ -137,7 +184,7 @@ ast_stmtlist *stmt_list(lexer *l)
         expect(l, NWLN);
         if (token_gettype(lexer_currtok(l)) == END)
             break;
-        ast_stmtlist_addchild(sl, expr(l));
+        ast_stmtlist_addchild(sl, stmt(l));
         if (err) {
             ast_stmtlist_delete(sl);
             return NULL;

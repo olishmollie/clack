@@ -72,7 +72,9 @@ static int is_newline(char c)
 static int isop(char c)
 {
     return c == '+' || c == '-' ||
-	c == '*' || c == '/' || c == '=';
+        c == '*' || c == '/' ||
+        c == '=' || c == '<' ||
+        c == '>';
 }
 
 static int isparen(char c)
@@ -100,11 +102,11 @@ static int ispound(char c)
     return c == '#';
 }
 
-static token *error_token(lexer *l, char c)
+static token *error_token(lexer *l, char *s)
 {
     char *msg = malloc(MAXBUFSIZE*sizeof(char));
-    snprintf(msg, (size_t)MAXBUFSIZE, "Unexpected '%c' at (%d|%d)",
-             c, lexer_getline(l), lexer_getcol(l));
+    snprintf(msg, (size_t)MAXBUFSIZE, "Unexpected '%s' at (%d|%d)",
+             s, lexer_getline(l), lexer_getcol(l));
     token *err = token_new(ERR, NULL, msg);
     return err;
 }
@@ -122,8 +124,10 @@ static token *read_digit(lexer *l)
 
     while (isdigit(c) || isdot(c)) {
         if (c == '.') {
-            if (hasdot)
-                return error_token(l, c);
+            if (hasdot) {
+                char s[2] = {c};
+                return error_token(l, s);
+            }
             hasdot = 1;
         }
         char tmp[2] = {c};
@@ -137,7 +141,7 @@ static token *read_digit(lexer *l)
 
 static token *read_ident(lexer *l)
 {
-    char* str = malloc(MAXBUFSIZE*sizeof(char));
+    char *str = malloc(MAXBUFSIZE*sizeof(char));
     char c = curr_char(l);
 
     while (isalpha(c)) {
@@ -151,6 +155,51 @@ static token *read_ident(lexer *l)
     return token_new(IDENT, str, NULL);
 }
 
+static token *op_token(lexer *l, char *op)
+{
+    toktype t;
+    if (strcmp(op, "+") == 0)
+        t = PLUS;
+    else if (strcmp(op, "-") == 0)
+        t = MINUS;
+    else if (strcmp(op, "*") == 0)
+        t = TIMES;
+    else if (strcmp(op, "/") == 0)
+        t = DIVIDE;
+    else if (strcmp(op, "=") == 0)
+        t = ASSIGN;
+    else if (strcmp(op, "==") == 0)
+        t = EQUALS;
+    else if (strcmp(op, "<") == 0)
+        t = LT;
+    else if (strcmp(op, "<=") == 0)
+        t = LTE;
+    else if (strcmp(op, ">") == 0)
+        t = GT;
+    else if (strcmp(op, ">=") == 0)
+        t = GTE;
+    else
+        return error_token(l, op);
+
+    return token_new(t, NULL, NULL);
+}
+
+static token *read_op(lexer *l)
+{
+    char *op = malloc(MAXBUFSIZE*sizeof(char));
+    char c = curr_char(l);
+
+    while (isop(c)) {
+        advance(l);
+        char tmp[2] = {c};
+        strcat(op, tmp);
+        c = curr_char(l);
+    }
+    op = realloc(op, strlen(op));
+
+    return op_token(l, op);
+}
+
 static void skip_comment(lexer *l)
 {
     advance(l);
@@ -162,20 +211,6 @@ static void skip_comment(lexer *l)
     }
 
     advance(l);
-}
-
-static token *op_token(char c)
-{
-    toktype op;
-    switch(c) {
-    case '+': op = PLUS; break;
-    case '-': op = MINUS; break;
-    case '*': op = TIMES; break;
-    case '/': op = DIVIDE; break;
-    case '=': op = EQUALS; break;
-    }
-
-    return token_new(op, NULL, NULL);
 }
 
 static token *paren_token(char c)
@@ -210,7 +245,7 @@ static token *read_next(lexer *l)
     } else if (isdigit(c)) {
         result = read_digit(l);
     } else if (isop(c)) {
-        result = op_token(advance(l));
+        result = read_op(l);
     } else if (isparen(c)) {
         result = paren_token(advance(l));
     } else if (isbrace(c)) {
@@ -227,7 +262,8 @@ static token *read_next(lexer *l)
         skip_comment(l);
         result = read_next(l);
     } else {
-        result = error_token(l, c);
+        char s[2] = {c};
+        result = error_token(l, s);
         advance(l);
     }
     return result;

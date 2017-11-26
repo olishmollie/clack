@@ -39,9 +39,9 @@ char *tokname(toktype t)
 {
     char *names[] = {
         "MAIN", "INT", "FLOAT", "PLUS", "MINUS", "TIMES",
-        "DIVIDE", "EQUALS", "LPAREN", "RPAREN",
-        "LBRACE", "RBRACE", "COMMA", "POUND", "IDENT",
-        "ERR", "END", "NWLN", "NOOP"
+        "DIVIDE", "ASSIGN", "EQUALS", "LT", "LTE", "GT", "GTE",
+        "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COMMA", "POUND",
+        "IDENT", "ERR", "END", "NWLN", "NOOP"
     };
     return names[t];
 }
