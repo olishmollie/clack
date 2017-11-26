@@ -74,7 +74,7 @@ static int isop(char c)
     return c == '+' || c == '-' ||
         c == '*' || c == '/' ||
         c == '=' || c == '<' ||
-        c == '>';
+        c == '>' || c == '!';
 }
 
 static int isparen(char c)
@@ -139,6 +139,17 @@ static token *read_digit(lexer *l)
     return hasdot ? token_new(FLOAT, num, NULL) : token_new(INT, num, NULL);
 }
 
+static int boolean(char *str)
+{
+    const char *bools[] = { "true", "false" };
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (strcmp(bools[i], str) == 0)
+            return 1;
+    }
+    return 0;
+}
+
 static token *read_ident(lexer *l)
 {
     char *str = malloc(MAXBUFSIZE*sizeof(char));
@@ -151,6 +162,10 @@ static token *read_ident(lexer *l)
         c = curr_char(l);
     }
     str = realloc(str, strlen(str));
+
+    if (boolean(str)) {
+        return token_new(BOOL, str, NULL);
+    }
 
     return token_new(IDENT, str, NULL);
 }
@@ -170,6 +185,8 @@ static token *op_token(lexer *l, char *op)
         t = ASSIGN;
     else if (strcmp(op, "==") == 0)
         t = EQUALS;
+    else if (strcmp(op, "!=") == 0)
+        t = NEQUALS;
     else if (strcmp(op, "<") == 0)
         t = LT;
     else if (strcmp(op, "<=") == 0)

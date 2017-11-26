@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "../headers/token.h"
 #include "../headers/lexer.h"
@@ -69,6 +70,9 @@ ast_stmt *factor(lexer *l)
     } else if (curr_type == FLOAT) {
         expect(l, FLOAT);
         result = ast_num(curr);
+    } else if (curr_type == BOOL) {
+        expect(l, BOOL);
+        result = ast_num(curr);
     } else if (curr_type == PLUS) {
         expect(l, PLUS);
         result = ast_unaryop(curr, factor(l));
@@ -98,7 +102,7 @@ ast_stmt *term(lexer *l)
             expect(l, TIMES);
             op = curr;
             right = factor(l);
-        } else {
+       } else {
             expect(l, DIVIDE);
             op = curr;
             right = factor(l);
@@ -139,28 +143,32 @@ ast_stmt *stmt(lexer *l) {
     toktype curr_type = token_gettype(curr);
 
     while (curr_type == EQUALS || curr_type == LT || curr_type == LTE
-           || curr_type == GT || curr_type == GTE) {
+           || curr_type == GT || curr_type == GTE || curr_type == NEQUALS) {
         token *op = NULL; ast_stmt *right = NULL;
         if (curr_type == EQUALS) {
             expect(l, EQUALS);
             op = curr;
-            right = expr(l);
+            right = stmt(l);
         } else if (curr_type == LT) {
             expect(l, LT);
             op = curr;
-            right = expr(l);
+            right = stmt(l);
         } else if (curr_type == LTE) {
             expect(l, LTE);
             op = curr;
-            right = expr(l);
+            right = stmt(l);
         } else if (curr_type == GT) {
             expect(l, GT);
             op = curr;
-            right = expr(l);
+            right = stmt(l);
         } else if (curr_type == GTE) {
             expect(l, GTE);
             op = curr;
-            right = expr(l);
+            right = stmt(l);
+        } else {
+            expect(l, NEQUALS);
+            op = curr;
+            right = stmt(l);
         }
         left = ast_binop(op, left, right);
         curr = lexer_currtok(l);
@@ -182,15 +190,16 @@ ast_stmtlist *stmt_list(lexer *l)
 
     while (token_gettype(lexer_currtok(l)) != END) {
         expect(l, NWLN);
-        if (token_gettype(lexer_currtok(l)) == END)
-            break;
+        if (err) {
+            ast_stmtlist_delete(sl);
+            return NULL;
+        }
         ast_stmtlist_addchild(sl, stmt(l));
         if (err) {
             ast_stmtlist_delete(sl);
             return NULL;
         }
     }
-
     return sl;
 }
 

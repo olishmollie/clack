@@ -3,7 +3,7 @@
 
 #include "token.h"
 
-#define MAXPARAMS 50
+#define MAXSTATEMENTS 500
 
 typedef struct ast_stmt_t {
     token *root;
@@ -12,7 +12,7 @@ typedef struct ast_stmt_t {
 } ast_stmt;
 
 typedef struct ast_stmtlist_t {
-    ast_stmt **children;
+    ast_stmt *children[MAXSTATEMENTS];
     int num_children;
 } ast_stmtlist;
 

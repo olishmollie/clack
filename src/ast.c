@@ -5,13 +5,10 @@
 #include "../headers/token.h"
 #include "../headers/ast.h"
 
-#define MAXSTATEMENTS 500
-
 ast_stmtlist *ast_stmtlist_new()
 {
     ast_stmtlist *sl = malloc(sizeof(ast_stmtlist));
     if (sl) {
-        sl->children = malloc(MAXSTATEMENTS*sizeof(ast_stmt));
         sl->num_children = 0;
     }
     return sl;
@@ -19,7 +16,7 @@ ast_stmtlist *ast_stmtlist_new()
 
 void ast_stmtlist_addchild(ast_stmtlist *sl, ast_stmt *s)
 {
-    if (sl->num_children < MAXBUFSIZE) {
+    if (sl->num_children < MAXSTATEMENTS) {
         sl->children[sl->num_children++] = s;
     } else {
         fprintf(stderr, "error: too many asts added to prog\n");
