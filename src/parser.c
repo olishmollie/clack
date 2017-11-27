@@ -227,7 +227,7 @@ ast *branch(lexer *l, token *b) {
     ifbody = stmt_list(l, RBRACE);
 
     while (token_gettype(lexer_currtok(l)) == ELSE) {
-        expect(l, IDENT);
+        expect(l, ELSE);
         expect(l, LBRACE);
         elsebody = stmt_list(l, RBRACE);
     }

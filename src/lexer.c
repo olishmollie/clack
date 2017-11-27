@@ -165,7 +165,10 @@ static token *read_reserved(char *str)
 {
     if (strcmp(str, "if") == 0)
         return token_new(IF, NULL, NULL);
-    return NULL;
+    else if (strcmp(str, "else") == 0)
+        return token_new(ELSE, NULL, NULL);
+    else
+        return token_new(WHILE, NULL, NULL);
 }
 
 static token *read_ident(lexer *l)

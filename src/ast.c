@@ -111,6 +111,7 @@ ast *ast_noop()
 }
 
 void astlist_print(astlist*, int);
+void ast_branch_print(ast*, int);
 
 static void ast_print_recurse(ast *a, int n, char *ident)
 {
@@ -131,19 +132,32 @@ static void ast_print_recurse(ast *a, int n, char *ident)
     }
 
     if (token_gettype(a->root) == IF) {
-        ast_print_recurse(a->left, n+1, "Condition:");
+        ast_branch_print(a, n+1);
     } else {
         ast_print_recurse(a->left, n+1, "Left:");
+        ast_print_recurse(a->right, n+1, "Right:");
+
     }
 
-    ast_print_recurse(a->right, n+1, "Right:");
-
-    if (a->ifbody)
-        astlist_print(a->ifbody, n+1);
-    if (a->elsebody)
-        astlist_print(a->elsebody, n+1);
-
     free(rootstr); free(indent);
+}
+
+void ast_branch_print(ast* b, int n)
+{
+    ast_print_recurse(b->left, n, "Condition:");
+
+    char* indent = malloc(2*n*sizeof(char)+1);
+
+    int i;
+    for (i = 0; i < 2*n; i++) {
+        indent[i] = ' ';
+    }
+    indent[i] = '\0';
+
+    printf("%sIFBody:\n", indent);
+    astlist_print(b->ifbody, n+1);
+    printf("%sELSEBody:\n", indent);
+    astlist_print(b->elsebody, n+1);
 }
 
 void astlist_print(astlist *sl, int n)
