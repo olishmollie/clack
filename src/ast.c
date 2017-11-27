@@ -65,6 +65,16 @@ ast_stmt *ast_var(token *v)
     return a;
 }
 
+ast_stmt *ast_str(token *s)
+{
+    ast_stmt *a = malloc(sizeof(ast_stmt));
+    if (a) {
+        a->root = s;
+        a->left = a->right = NULL;
+    }
+    return a;
+}
+
 ast_stmt *ast_noop()
 {
     ast_stmt *a = malloc(sizeof(ast_stmt));

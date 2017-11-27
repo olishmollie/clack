@@ -38,9 +38,9 @@ char *token_geterr(token *t)
 char *tokname(toktype t)
 {
     char *names[] = {
-        "MAIN", "INT", "FLOAT", "BOOL", "PLUS", "MINUS", "TIMES",
-        "DIVIDE", "ASSIGN", "EQUALS", "NEQUALS", "LT", "LTE",
-        "GT", "GTE", "LPAREN", "RPAREN", "LBRACE", "RBRACE",
+        "MAIN", "INT", "FLOAT", "BOOL", "STRING", "PLUS", "MINUS",
+        "TIMES", "DIVIDE", "ASSIGN", "EQUALS", "NEQUALS", "LT",
+        "LTE", "GT", "GTE", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "QUOTE",
         "COMMA", "POUND", "IDENT", "ERR", "END", "NWLN", "NOOP"
     };
     return names[t];

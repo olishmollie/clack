@@ -22,6 +22,7 @@ ast_stmt *ast_binop(token*, ast_stmt*, ast_stmt*);
 ast_stmt *ast_unaryop(token*, ast_stmt*);
 ast_stmt *ast_num(token*);
 ast_stmt *ast_var(token*);
+ast_stmt *ast_str(token*);
 ast_stmt *ast_noop(void);
 toktype ast_gettype(ast_stmt*);
 void ast_stmtlist_print(ast_stmtlist*);

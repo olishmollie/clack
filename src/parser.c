@@ -81,6 +81,9 @@ ast_stmt *factor(lexer *l)
         result = ast_unaryop(curr, factor(l));
     } else if (curr_type == IDENT) {
         result = symbol(l);
+    } else if (curr_type == STRING) {
+        expect(l, STRING);
+        result = ast_str(curr);
     } else if (curr_type == NWLN) {
         expect(l, NWLN);
         result = ast_noop();

@@ -102,6 +102,11 @@ static int ispound(char c)
     return c == '#';
 }
 
+static int isquote(char c)
+{
+    return c == '"';
+}
+
 static token *error_token(lexer *l, char *s)
 {
     char *msg = malloc(MAXBUFSIZE*sizeof(char));
@@ -168,6 +173,30 @@ static token *read_ident(lexer *l)
     }
 
     return token_new(IDENT, str, NULL);
+}
+
+static token *read_str(lexer *l)
+{
+    char *str = malloc(MAXBUFSIZE*sizeof(char));
+    advance(l); /* Ignore opening quote */
+    char c = curr_char(l);
+
+    int count = 0;
+    while (c != '"' && count < MAXBUFSIZE) {
+        char tmp[2] = {c};
+        strcat(str, tmp);
+        count++;
+        advance(l);
+        c = curr_char(l);
+    }
+
+    /* Check for closing quote and move beyond it*/
+    if (c != '"') {
+        return error_token(l, "eof");
+    }
+    advance(l);
+
+    return token_new(STRING, str, NULL);
 }
 
 static token *op_token(lexer *l, char *op)
@@ -275,6 +304,8 @@ static token *read_next(lexer *l)
     } else if (iscomma(c)) {
         result = token_new(COMMA, NULL, NULL);
         advance(l);
+    } else if (isquote(c)) {
+        result = read_str(l);
     } else if (ispound(c)) {
         skip_comment(l);
         result = read_next(l);
