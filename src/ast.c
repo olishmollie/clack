@@ -23,6 +23,14 @@ void astlist_addchild(astlist *sl, ast *s)
     }
 }
 
+void astlist_append(astlist *dest, astlist *src)
+{
+    int i;
+    for (i = 0; i < src->num_children; i++) {
+        astlist_addchild(dest, src->children[i]);
+    }
+}
+
 ast *ast_branch(token *root, ast *cond, astlist *ifbody, astlist *elsebody)
 {
     ast *b = malloc(sizeof(ast));
@@ -144,7 +152,7 @@ static void ast_print_recurse(ast *a, int n, char *ident)
 
 void ast_branch_print(ast* b, int n)
 {
-    ast_print_recurse(b->left, n, "Condition:");
+    ast_print_recurse(b->left, n, "IF:");
 
     char* indent = malloc(2*n*sizeof(char)+1);
 
@@ -154,9 +162,9 @@ void ast_branch_print(ast* b, int n)
     }
     indent[i] = '\0';
 
-    printf("%sIFBody:\n", indent);
+    printf("%sTHEN:\n", indent);
     astlist_print(b->ifbody, n+1);
-    printf("%sELSEBody:\n", indent);
+    printf("%sELSE:\n", indent);
     astlist_print(b->elsebody, n+1);
 }
 

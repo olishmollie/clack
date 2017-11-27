@@ -22,6 +22,7 @@ struct astlist_t {
 
 astlist *astlist_new();
 void astlist_addchild(astlist*, ast*);
+void astlist_append(astlist*, astlist*);
 ast *ast_binop(token*, ast*, ast*);
 ast *ast_unaryop(token*, ast*);
 ast *ast_num(token*);

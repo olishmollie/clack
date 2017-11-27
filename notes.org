@@ -42,8 +42,31 @@
     more code to parse. We need to figure out how to end it with just one new line, or none.
 
 ** Notes
+   
+*** Builtins
    How do we implement builtin functions, like print()? Possiblilites:
    - Interpreter maps ident tokens to builtin functions
    - Parser maps ident tokens and <call> becomes a factor
    - Lexer creates function token by checking a list of builtins
-  
+   
+*** Else if clauses
+   #+BEGIN_SRC javascript
+   x = 1;
+   if (x === 1) {
+     console.log("x is one");
+   } else if (x === 0) {
+     console.log("x does not exist");
+   } else (x === 2) {
+     console.log("x is too big");
+   }
+   // is equivalent to...
+   if (x === 1) {
+     console.log("x is one");
+   } else {
+     if (x === 0) {
+       console.log("x does not exist");
+     } else {
+       console.log("x is too big");
+     }
+   }
+   #+END_SRC 

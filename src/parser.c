@@ -187,7 +187,6 @@ ast *stmt(lexer *l) {
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
     if (curr_type == IF) {
-        expect(l, IF);
         return branch(l, curr);
     }
     ast *s = sentence(l);
@@ -219,17 +218,29 @@ astlist *stmt_list(lexer *l, toktype finish)
 }
 
 ast *branch(lexer *l, token *b) {
-    ast *cond;
+    ast *cond, *sub;
     astlist *ifbody, *elsebody = NULL;
 
+    expect(l, IF);
     cond = sentence(l);
     expect(l, LBRACE);
     ifbody = stmt_list(l, RBRACE);
 
-    while (token_gettype(lexer_currtok(l)) == ELSE) {
+    token *curr = lexer_currtok(l);
+    toktype curr_type = token_gettype(curr);
+    while (curr_type == ELSE) {
         expect(l, ELSE);
-        expect(l, LBRACE);
-        elsebody = stmt_list(l, RBRACE);
+
+        elsebody = astlist_new();
+
+        curr = lexer_currtok(l);
+        curr_type = token_gettype(curr);
+        if (curr_type == IF) {
+            astlist_addchild(elsebody, branch(l, curr));
+        } else {
+            expect(l, LBRACE);
+            astlist_append(elsebody, stmt_list(l, RBRACE));
+        }
     }
 
     return ast_branch(b, cond, ifbody, elsebody);
