@@ -52,21 +52,11 @@ static char advance(lexer* l)
     }
 }
 
-static int is_space(char c)
-{
-    return c == ' ' || c == '\t';
-}
-
 static void skip_whitespace(lexer *l)
 {
-    while (is_space(curr_char(l))) {
+    while (isspace(curr_char(l))) {
         advance(l);
     }
-}
-
-static int is_newline(char c)
-{
-    return c == '\n' || c == '\r';
 }
 
 static int isop(char c)
@@ -105,6 +95,11 @@ static int ispound(char c)
 static int isquote(char c)
 {
     return c == '"';
+}
+
+static int issemi(char c)
+{
+    return c == ';';
 }
 
 static token *error_token(lexer *l, char *s)
@@ -155,6 +150,24 @@ static int boolean(char *str)
     return 0;
 }
 
+static int reserved(char *str)
+{
+    const char *rwords[] = { "if", "else", "while" };
+    int i;
+    for (i = 0; i < 3; i++) {
+        if (strcmp(rwords[i], str) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+static token *read_reserved(char *str)
+{
+    if (strcmp(str, "if") == 0)
+        return token_new(IF, NULL, NULL);
+    return NULL;
+}
+
 static token *read_ident(lexer *l)
 {
     char *str = malloc(MAXBUFSIZE*sizeof(char));
@@ -170,6 +183,8 @@ static token *read_ident(lexer *l)
 
     if (boolean(str)) {
         return token_new(BOOL, str, NULL);
+    } else if (reserved(str)) {
+        return read_reserved(str);
     }
 
     return token_new(IDENT, str, NULL);
@@ -298,9 +313,6 @@ static token *read_next(lexer *l)
         result = brace_token(advance(l));
     } else if (isalpha(c)) {
         result = read_ident(l);
-    } else if (is_newline(c)) {
-        result = token_new(NWLN, NULL, NULL);
-        advance(l);
     } else if (iscomma(c)) {
         result = token_new(COMMA, NULL, NULL);
         advance(l);
@@ -309,6 +321,9 @@ static token *read_next(lexer *l)
     } else if (ispound(c)) {
         skip_comment(l);
         result = read_next(l);
+    } else if (issemi(c)) {
+        result = token_new(SEMI, NULL, NULL);
+        advance(l);
     } else {
         char s[2] = {c};
         result = error_token(l, s);

@@ -1,22 +1,31 @@
 * Fig 
 
 ** Grammar
-
-   <stmtlist> ::= <stmt>* | <assign_stmt>
-
-   <assign_stmt> ::= <ident> '=' <stmt>
-
-   <stmt>     ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr>
-
-   <expr>     ::= <term> | <term> '+' <term> | <term> '-' <term> 
    
-   <term>     ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
+   <stmtlist>    ::= <stmt>*
 
-   <factor>   ::= <digit> | <ident> | '(' <expr> ')'
+   <stmt>        ::= <branch> | <sentence> ';'
 
-   <ident>    ::= '\w+'
+   <branch>      ::= 'if' <bool_expr> '{' <stmtlist> '}' [ <else> '{' <stmtlist> '}' ]
 
-   <digit>    ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+   <sentence>    ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr>
+                     | <assignment>
+
+   <assignment>  ::= <ident> '=' <sentence>
+
+   <expr>        ::= <term> | <term> '+' <term> | <term> '-' <term> 
+   
+   <term>        ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
+
+   <factor>      ::= <digit> | <ident> | '(' <expr> ')'
+
+   <bool>        ::= 'true' | 'false'
+
+   <string>      ::= '"' '\w+' '"'
+
+   <ident>       ::= '\w+'
+
+   <digit>       ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 ** Tasks
 *** DONE Refactor token creation.

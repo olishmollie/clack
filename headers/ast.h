@@ -5,29 +5,33 @@
 
 #define MAXSTATEMENTS 500
 
-typedef struct ast_stmt_t {
+typedef struct astlist_t astlist;
+
+typedef struct ast_t {
     token *root;
-    struct ast_stmt_t *left;
-    struct ast_stmt_t *right;
-} ast_stmt;
+    struct ast_t *left;
+    struct ast_t *right;
+    astlist *ifbody;
+    astlist *elsebody;
+} ast;
 
-typedef struct ast_stmtlist_t {
-    ast_stmt *children[MAXSTATEMENTS];
+struct astlist_t {
+    ast *children[MAXSTATEMENTS];
     int num_children;
-} ast_stmtlist;
+};
 
-ast_stmtlist *ast_stmtlist_new();
-void ast_stmtlist_addchild(ast_stmtlist*, ast_stmt*);
-ast_stmt *ast_binop(token*, ast_stmt*, ast_stmt*);
-ast_stmt *ast_unaryop(token*, ast_stmt*);
-ast_stmt *ast_num(token*);
-ast_stmt *ast_var(token*);
-ast_stmt *ast_str(token*);
-ast_stmt *ast_noop(void);
-toktype ast_gettype(ast_stmt*);
-void ast_stmtlist_print(ast_stmtlist*);
-void ast_stmt_print(ast_stmt*);
-void ast_stmtlist_delete(ast_stmtlist*);
-void ast_stmt_delete(ast_stmt*);
+astlist *astlist_new();
+void astlist_addchild(astlist*, ast*);
+ast *ast_binop(token*, ast*, ast*);
+ast *ast_unaryop(token*, ast*);
+ast *ast_num(token*);
+ast *ast_var(token*);
+ast *ast_str(token*);
+ast *ast_branch(token*, ast*, astlist*, astlist*);
+ast *ast_noop(void);
+void astlist_print(astlist*, int);
+void ast_print(ast*);
+void astlist_delete(astlist*);
+void ast_delete(ast*);
 
 #endif

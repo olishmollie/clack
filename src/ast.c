@@ -5,16 +5,16 @@
 #include "../headers/token.h"
 #include "../headers/ast.h"
 
-ast_stmtlist *ast_stmtlist_new()
+astlist *astlist_new()
 {
-    ast_stmtlist *sl = malloc(sizeof(ast_stmtlist));
+    astlist *sl = malloc(sizeof(astlist));
     if (sl) {
         sl->num_children = 0;
     }
     return sl;
 }
 
-void ast_stmtlist_addchild(ast_stmtlist *sl, ast_stmt *s)
+void astlist_addchild(astlist *sl, ast *s)
 {
     if (sl->num_children < MAXSTATEMENTS) {
         sl->children[sl->num_children++] = s;
@@ -23,69 +23,96 @@ void ast_stmtlist_addchild(ast_stmtlist *sl, ast_stmt *s)
     }
 }
 
-ast_stmt *ast_binop(token *root, ast_stmt *left, ast_stmt *right)
+ast *ast_branch(token *root, ast *cond, astlist *ifbody, astlist *elsebody)
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *b = malloc(sizeof(ast));
+    if (b) {
+        b->root = root;
+        b->left = cond;
+        b->right = NULL;
+        b->ifbody = ifbody;
+        b->elsebody = elsebody;
+    }
+    return b;
+}
+
+ast *ast_binop(token *root, ast *left, ast *right)
+{
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = root;
         a->left = left;
         a->right = right;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-ast_stmt *ast_unaryop(token *root, ast_stmt *next)
+ast *ast_unaryop(token *root, ast *next)
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = root;
         a->left = NULL;
         a->right = next;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-ast_stmt *ast_num(token *n)
+ast *ast_num(token *n)
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = n;
         a->left = a->right = NULL;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-ast_stmt *ast_var(token *v)
+ast *ast_var(token *v)
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = v;
         a->left = a->right = NULL;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-ast_stmt *ast_str(token *s)
+ast *ast_str(token *s)
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = s;
         a->left = a->right = NULL;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-ast_stmt *ast_noop()
+ast *ast_noop()
 {
-    ast_stmt *a = malloc(sizeof(ast_stmt));
+    ast *a = malloc(sizeof(ast));
     if (a) {
         a->root = token_new(NOOP, NULL, NULL);
         a->left = a->right = NULL;
+        a->ifbody = NULL;
+        a->elsebody = NULL;
     }
     return a;
 }
 
-static void ast_stmt_print_recurse(ast_stmt *a, int n, char *ident)
+void astlist_print(astlist*, int);
+
+static void ast_print_recurse(ast *a, int n, char *ident)
 {
     if (!a) return;
     char *rootstr = token_str(a->root);
@@ -103,40 +130,50 @@ static void ast_stmt_print_recurse(ast_stmt *a, int n, char *ident)
         printf("%s%s\n", indent, rootstr);
     }
 
-    ast_stmt_print_recurse(a->left, n+1, "Left:");
-    ast_stmt_print_recurse(a->right, n+1, "Right:");
+    if (token_gettype(a->root) == IF) {
+        ast_print_recurse(a->left, n+1, "Condition:");
+    } else {
+        ast_print_recurse(a->left, n+1, "Left:");
+    }
+
+    ast_print_recurse(a->right, n+1, "Right:");
+
+    if (a->ifbody)
+        astlist_print(a->ifbody, n+1);
+    if (a->elsebody)
+        astlist_print(a->elsebody, n+1);
 
     free(rootstr); free(indent);
 }
 
-void ast_stmtlist_print(ast_stmtlist *sl)
+void astlist_print(astlist *sl, int n)
 {
     int i;
     for (i = 0; i < sl->num_children; i++)
-        ast_stmt_print(sl->children[i]);
+        ast_print_recurse(sl->children[i], n, NULL);
 }
 
-void ast_stmt_print(ast_stmt *a)
+void ast_print(ast *a)
 {
-    ast_stmt_print_recurse(a, 0, NULL);
+    ast_print_recurse(a, 0, NULL);
 }
 
-void ast_stmtlist_delete(ast_stmtlist *sl)
+void astlist_delete(astlist *sl)
 {
     if (sl) {
         int i;
         for (i = 0; i < sl->num_children; i++)
-            ast_stmt_delete(sl->children[i]);
+            ast_delete(sl->children[i]);
         free(sl);
     }
 }
 
-void ast_stmt_delete(ast_stmt *a)
+void ast_delete(ast *a)
 {
     if (!a) return;
     token_delete(a->root);
-    ast_stmt_delete(a->left);
-    ast_stmt_delete(a->right);
+    ast_delete(a->left);
+    ast_delete(a->right);
 
     free(a);
 }
