@@ -186,9 +186,10 @@ ast *branch(lexer*, token*);
 ast *stmt(lexer *l) {
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
-    if (curr_type == IF) {
+    if (curr_type == END)
+        return NULL;
+    if (curr_type == IF)
         return branch(l, curr);
-    }
     ast *s = sentence(l);
     expect(l, SEMI);
     return s;
@@ -218,7 +219,7 @@ astlist *stmt_list(lexer *l, toktype finish)
 }
 
 ast *branch(lexer *l, token *b) {
-    ast *cond, *sub;
+    ast *cond;
     astlist *ifbody, *elsebody = NULL;
 
     expect(l, IF);
