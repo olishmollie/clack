@@ -31,17 +31,30 @@ void astlist_append(astlist *dest, astlist *src)
     }
 }
 
-ast *ast_branch(token *root, ast *cond, astlist *ifbody, astlist *elsebody)
+ast *ast_branch(token *root, ast *cond, astlist *body, astlist *elsebody)
 {
     ast *b = malloc(sizeof(ast));
     if (b) {
         b->root = root;
         b->left = cond;
         b->right = NULL;
-        b->ifbody = ifbody;
+        b->body = body;
         b->elsebody = elsebody;
     }
     return b;
+}
+
+ast *ast_loop(token *root, ast *cond, astlist *body)
+{
+    ast *l = malloc(sizeof(ast));
+    if (l) {
+        l->root = root;
+        l->left = cond;
+        l->right = NULL;
+        l->body = body;
+        l->elsebody = NULL;
+    }
+    return l;
 }
 
 ast *ast_binop(token *root, ast *left, ast *right)
@@ -51,7 +64,7 @@ ast *ast_binop(token *root, ast *left, ast *right)
         a->root = root;
         a->left = left;
         a->right = right;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -64,7 +77,7 @@ ast *ast_unaryop(token *root, ast *next)
         a->root = root;
         a->left = NULL;
         a->right = next;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -76,7 +89,7 @@ ast *ast_num(token *n)
     if (a) {
         a->root = n;
         a->left = a->right = NULL;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -88,7 +101,7 @@ ast *ast_var(token *v)
     if (a) {
         a->root = v;
         a->left = a->right = NULL;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -100,7 +113,7 @@ ast *ast_str(token *s)
     if (a) {
         a->root = s;
         a->left = a->right = NULL;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -112,7 +125,7 @@ ast *ast_noop()
     if (a) {
         a->root = token_new(NOOP, NULL, NULL);
         a->left = a->right = NULL;
-        a->ifbody = NULL;
+        a->body = NULL;
         a->elsebody = NULL;
     }
     return a;
@@ -120,6 +133,7 @@ ast *ast_noop()
 
 void astlist_print(astlist*, int);
 void ast_branch_print(ast*, int);
+void ast_loop_print(ast*, int);
 
 static void ast_print_recurse(ast *a, int n, char *ident)
 {
@@ -141,9 +155,11 @@ static void ast_print_recurse(ast *a, int n, char *ident)
 
     if (token_gettype(a->root) == IF) {
         ast_branch_print(a, n+1);
+    } else if (token_gettype(a->root) == WHILE) {
+        ast_loop_print(a, n+1);
     } else {
-        ast_print_recurse(a->left, n+1, "Left:");
-        ast_print_recurse(a->right, n+1, "Right:");
+        ast_print_recurse(a->left, n+1, "LEFT:");
+        ast_print_recurse(a->right, n+1, "RIGHT:");
 
     }
 
@@ -163,9 +179,31 @@ void ast_branch_print(ast* b, int n)
     indent[i] = '\0';
 
     printf("%sTHEN:\n", indent);
-    astlist_print(b->ifbody, n+1);
-    printf("%sELSE:\n", indent);
-    astlist_print(b->elsebody, n+1);
+    astlist_print(b->body, n+1);
+    if (b->elsebody) {
+        printf("%sELSE:\n", indent);
+        astlist_print(b->elsebody, n+1);
+    }
+
+    free(indent);
+}
+
+void ast_loop_print(ast *l, int n)
+{
+    ast_print_recurse(l->left, n, "WHILE:");
+
+    char* indent = malloc(2*n*sizeof(char)+1);
+
+    int i;
+    for (i = 0; i < 2*n; i++) {
+        indent[i] = ' ';
+    }
+    indent[i] = '\0';
+
+    printf("%sDO:\n", indent);
+    astlist_print(l->body, n+1);
+
+    free(indent);
 }
 
 void astlist_print(astlist *sl, int n)

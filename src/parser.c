@@ -182,14 +182,19 @@ ast *sentence(lexer *l)
 }
 
 ast *branch(lexer*, token*);
+ast *loop(lexer*, token*);
 
 ast *stmt(lexer *l) {
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
+
     if (curr_type == END)
         return NULL;
-    if (curr_type == IF)
+    else if (curr_type == IF)
         return branch(l, curr);
+    else if (curr_type == WHILE)
+        return loop(l, curr);
+
     ast *s = sentence(l);
     expect(l, SEMI);
     return s;
@@ -218,14 +223,27 @@ astlist *stmt_list(lexer *l, toktype finish)
     return sl;
 }
 
+ast *loop(lexer *l, token* curr)
+{
+    ast *cond;
+    astlist *body;
+
+    expect(l, WHILE);
+    cond = sentence(l);
+    expect(l, LBRACE);
+    body = stmt_list(l, RBRACE);
+
+    return ast_loop(curr, cond, body);
+}
+
 ast *branch(lexer *l, token *b) {
     ast *cond;
-    astlist *ifbody, *elsebody = NULL;
+    astlist *body, *elsebody = NULL;
 
     expect(l, IF);
     cond = sentence(l);
     expect(l, LBRACE);
-    ifbody = stmt_list(l, RBRACE);
+    body = stmt_list(l, RBRACE);
 
     token *curr = lexer_currtok(l);
     toktype curr_type = token_gettype(curr);
@@ -244,7 +262,7 @@ ast *branch(lexer *l, token *b) {
         }
     }
 
-    return ast_branch(b, cond, ifbody, elsebody);
+    return ast_branch(b, cond, body, elsebody);
 }
 
 astlist *parse(lexer *l) {

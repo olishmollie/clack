@@ -11,7 +11,7 @@ typedef struct ast_t {
     token *root;
     struct ast_t *left;
     struct ast_t *right;
-    astlist *ifbody;
+    astlist *body;
     astlist *elsebody;
 } ast;
 
@@ -28,6 +28,7 @@ ast *ast_unaryop(token*, ast*);
 ast *ast_num(token*);
 ast *ast_var(token*);
 ast *ast_str(token*);
+ast *ast_loop(token*, ast*, astlist*);
 ast *ast_branch(token*, ast*, astlist*, astlist*);
 ast *ast_noop(void);
 void astlist_print(astlist*, int);

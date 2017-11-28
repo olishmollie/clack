@@ -4,9 +4,11 @@
    
    <stmtlist>    ::= <stmt>*
 
-   <stmt>        ::= <branch> | <sentence> ';'
+   <stmt>        ::= <branch> | <while> | <sentence> ';'
 
-   <branch>      ::= 'if' <bool_expr> '{' <stmtlist> '}' [ <else> '{' <stmtlist> '}' ]
+   <branch>      ::= 'if' <sentence> '{' <stmtlist> '}' [ <else if> '{' <stmtlist> '}' [ <else> '{ <stmtlist> '}' ] ]
+
+   <while>       ::= 'while' <sentence> '{' <stmlist> '}'
 
    <sentence>    ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr>
                      | <assignment>
