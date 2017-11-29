@@ -1,6 +1,6 @@
 * Fig 
 
-** Grammar
+** TODO Grammar
    
    <stmtlist>    ::= <stmt>*
 
@@ -10,8 +10,7 @@
 
    <while>       ::= 'while' <sentence> '{' <stmlist> '}'
 
-   <sentence>    ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr>
-                     | <assignment>
+   <sentence>    ::= <expr> | <expr> '>' <expr> | <expr> '<' <expr> | <expr> '==' <expr> | <assignment>
 
    <assignment>  ::= <ident> '=' <sentence>
 
@@ -19,7 +18,9 @@
    
    <term>        ::= <factor> | <factor> '*' <factor> | <factor> '/' <factor> 
 
-   <factor>      ::= <digit> | <ident> | '(' <expr> ')'
+   <factor>      ::= <digit> | <ident> | '(' <expr> ')' | <funcall> 
+
+   <funcall>     ::= <ident> '(' <expr>* ')'
 
    <bool>        ::= 'true' | 'false'
 

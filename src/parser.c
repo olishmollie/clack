@@ -44,12 +44,19 @@ ast *assign_stmt(lexer *l, token *var)
     return ast_binop(eq, left, right);
 }
 
+ast *funcall(lexer*, token*);
+
 ast *symbol(lexer *l)
 {
     token *curr = lexer_currtok(l);
     expect(l, IDENT);
-    if (token_gettype(lexer_currtok(l)) == ASSIGN) {
+
+    token *next = lexer_currtok(l);
+    toktype next_type = token_gettype(next);
+    if (next_type == ASSIGN) {
         return assign_stmt(l, curr);
+    } else if (next_type == LPAREN) {
+        return funcall(l, curr);
     } else {
         return ast_var(curr);
     }
@@ -263,6 +270,22 @@ ast *branch(lexer *l, token *b) {
     }
 
     return ast_branch(b, cond, body, elsebody);
+}
+
+ast *funcall(lexer *l, token *f)
+{
+    astlist *args = astlist_new();
+
+    expect(l, LPAREN);
+    astlist_addchild(args, expr(l));
+
+    while (token_gettype(lexer_currtok(l)) == COMMA) {
+        expect(l, COMMA);
+        astlist_addchild(args, expr(l));
+    }
+    expect(l, RPAREN);
+
+    return ast_funcall(f, args);
 }
 
 astlist *parse(lexer *l) {

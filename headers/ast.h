@@ -11,13 +11,14 @@ typedef struct ast_t {
     token *root;
     struct ast_t *left;
     struct ast_t *right;
+    astlist *args;
     astlist *body;
     astlist *elsebody;
 } ast;
 
 struct astlist_t {
     ast *children[MAXSTATEMENTS];
-    int num_children;
+    int nchildren;
 };
 
 astlist *astlist_new();
@@ -30,7 +31,11 @@ ast *ast_var(token*);
 ast *ast_str(token*);
 ast *ast_loop(token*, ast*, astlist*);
 ast *ast_branch(token*, ast*, astlist*, astlist*);
+ast *ast_funcall(token*, astlist*);
 ast *ast_noop(void);
+void ast_branch_print(ast*, int);
+void ast_loop_print(ast*, int);
+void ast_funcall_print(ast*, int);
 void astlist_print(astlist*, int);
 void ast_print(ast*);
 void astlist_delete(astlist*);
