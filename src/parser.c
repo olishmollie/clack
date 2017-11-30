@@ -34,7 +34,7 @@ static void expect(lexer *l, toktype expected)
 ast *symbol(lexer *l);
 ast *sentence(lexer*);
 
-ast *assign_stmt(lexer *l, token *var)
+ast *assignment(lexer *l, token *var)
 {
     ast *left = ast_var(var);
     token *eq = lexer_currtok(l);
@@ -54,7 +54,7 @@ ast *symbol(lexer *l)
     token *next = lexer_currtok(l);
     toktype next_type = token_gettype(next);
     if (next_type == ASSIGN) {
-        return assign_stmt(l, curr);
+        return assignment(l, curr);
     } else if (next_type == LPAREN) {
         return funcall(l, curr);
     } else {
@@ -190,6 +190,7 @@ ast *sentence(lexer *l)
 
 ast *branch(lexer*, token*);
 ast *loop(lexer*, token*);
+ast *fundef(lexer *l);
 
 ast *stmt(lexer *l) {
     token *curr = lexer_currtok(l);
@@ -201,6 +202,8 @@ ast *stmt(lexer *l) {
         return branch(l, curr);
     else if (curr_type == WHILE)
         return loop(l, curr);
+    else if (curr_type == FUNDEF)
+        return fundef(l);
 
     ast *s = sentence(l);
     expect(l, SEMI);
@@ -230,6 +233,31 @@ astlist *stmt_list(lexer *l, toktype finish)
     return sl;
 }
 
+ast *fundef(lexer *l)
+{
+    expect(l, FUNDEF);
+
+    token *name = lexer_currtok(l);
+    expect(l, IDENT);
+    token_settype(name, FUNDEF);
+
+    astlist *args = astlist_new();
+
+    expect(l, LPAREN);
+
+    astlist_addchild(args, symbol(l));
+    while (token_gettype(lexer_currtok(l)) == COMMA) {
+        expect(l, COMMA);
+        astlist_addchild(args, expr(l));
+    }
+    expect(l, RPAREN);
+    expect(l, LBRACE);
+
+    astlist *body = stmt_list(l, RBRACE);
+
+    return ast_fundef(name, args, body);
+
+}
 ast *loop(lexer *l, token* curr)
 {
     ast *cond;
@@ -274,6 +302,7 @@ ast *branch(lexer *l, token *b) {
 
 ast *funcall(lexer *l, token *f)
 {
+    token_settype(f, FUNCALL);
     astlist *args = astlist_new();
 
     expect(l, LPAREN);

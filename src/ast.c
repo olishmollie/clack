@@ -31,14 +31,22 @@ void astlist_append(astlist *dest, astlist *src)
     }
 }
 
+ast *ast_new() {
+    ast *a = malloc(sizeof(ast));
+    if (a) {
+        a->root = NULL;
+        a->right = a->left = NULL;
+        a->args = a->body = a->elsebody = NULL;
+    }
+    return a;
+}
+
 ast *ast_branch(token *root, ast *cond, astlist *body, astlist *elsebody)
 {
-    ast *b = malloc(sizeof(ast));
+    ast *b = ast_new();
     if (b) {
         b->root = root;
         b->left = cond;
-        b->right = NULL;
-        b->args = NULL;
         b->body = body;
         b->elsebody = elsebody;
     }
@@ -47,107 +55,89 @@ ast *ast_branch(token *root, ast *cond, astlist *body, astlist *elsebody)
 
 ast *ast_loop(token *root, ast *cond, astlist *body)
 {
-    ast *l = malloc(sizeof(ast));
+    ast *l = ast_new();
     if (l) {
         l->root = root;
         l->left = cond;
-        l->right = NULL;
-        l->args = NULL;
         l->body = body;
-        l->elsebody = NULL;
     }
     return l;
 }
 
 ast *ast_funcall(token *root, astlist *args)
 {
-    ast *fc = malloc(sizeof(ast));
+    ast *fc = ast_new();
     if (fc) {
         fc->root = root;
         fc->args = args;
-        fc->left = fc->right = NULL;
-        fc->body = NULL;
-        fc->elsebody = NULL;
     }
     return fc;
 }
 
 ast *ast_binop(token *root, ast *left, ast *right)
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = root;
         a->left = left;
         a->right = right;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
 
 ast *ast_unaryop(token *root, ast *next)
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = root;
-        a->left = NULL;
         a->right = next;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
 
 ast *ast_num(token *n)
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = n;
-        a->left = a->right = NULL;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
 
 ast *ast_var(token *v)
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = v;
-        a->left = a->right = NULL;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
 
 ast *ast_str(token *s)
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = s;
-        a->left = a->right = NULL;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
 
+ast *ast_fundef(token *name, astlist *args, astlist *body)
+{
+    ast *fn = ast_new();
+    if (fn) {
+        fn->root = name;
+        fn->args = args;
+        fn->body = body;
+    }
+    return fn;
+}
+
 ast *ast_noop()
 {
-    ast *a = malloc(sizeof(ast));
+    ast *a = ast_new();
     if (a) {
         a->root = token_new(NOOP, NULL, NULL);
-        a->left = a->right = NULL;
-        a->args = NULL;
-        a->body = NULL;
-        a->elsebody = NULL;
     }
     return a;
 }
@@ -180,12 +170,13 @@ static void ast_print_recurse(ast *a, int n, char *ident)
         ast_branch_print(a, n+1);
     } else if (token_gettype(a->root) == WHILE) {
         ast_loop_print(a, n+1);
-    } else if (a->args) {
+    } else if (token_gettype(a->root) == FUNDEF) {
+        ast_fundef_print(a, n+1);
+    } else if (token_gettype(a->root) == FUNCALL) {
         ast_funcall_print(a, n+1);
     } else {
         ast_print_recurse(a->left, n+1, "LEFT:");
         ast_print_recurse(a->right, n+1, "RIGHT:");
-
     }
 
     free(rootstr); free(indent);
@@ -227,6 +218,17 @@ void ast_funcall_print(ast *fc, int n)
     astlist_print(fc->args, n+1);
 
     free(indent);
+}
+
+void ast_fundef_print(ast *fd, int n)
+{
+    char *indent = indent_str(n);
+
+    printf("%sPARAMS:\n", indent);
+    astlist_print(fd->args, n+1);
+
+    printf("%sBODY:\n", indent);
+    astlist_print(fd->body, n+1);
 }
 
 void astlist_print(astlist *sl, int n)

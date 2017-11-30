@@ -152,9 +152,9 @@ static int boolean(char *str)
 
 static int reserved(char *str)
 {
-    const char *rwords[] = { "if", "else", "while" };
-    int i;
-    for (i = 0; i < 3; i++) {
+    const char *rwords[] = { "if", "else", "while", "fn" };
+    int i, len = sizeof(rwords)/sizeof(char*);
+    for (i = 0; i < len; i++) {
         if (strcmp(rwords[i], str) == 0)
             return 1;
     }
@@ -167,6 +167,8 @@ static token *read_reserved(char *str)
         return token_new(IF, NULL, NULL);
     else if (strcmp(str, "else") == 0)
         return token_new(ELSE, NULL, NULL);
+    else if (strcmp(str, "fn") == 0)
+        return token_new(FUNDEF, NULL, NULL);
     else
         return token_new(WHILE, NULL, NULL);
 }

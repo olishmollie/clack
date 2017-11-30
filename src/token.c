@@ -25,9 +25,19 @@ toktype token_gettype(token* t)
     return t ? t->type : NOOP;
 }
 
+void token_settype(token *t, toktype new)
+{
+    t->type = new;
+}
+
 char *token_getvalue(token *t)
 {
     return t->value;
+}
+
+void token_setvalue(token *t, char *new)
+{
+    t->value = new;
 }
 
 char *token_geterr(token *t)
@@ -42,7 +52,7 @@ char *tokname(toktype t)
         "TIMES", "DIVIDE", "ASSIGN", "IF", "ELSE", "WHILE", "EQUALS",
         "NEQUALS", "LT", "LTE", "GT", "GTE", "LPAREN", "RPAREN", "LBRACE",
         "RBRACE", "QUOTE", "COMMA", "POUND", "IDENT", "ERR", "END",
-        "SEMI", "NOOP"
+        "FUNDEF", "FUNCALL", "SEMI", "NOOP"
     };
     return names[t];
 }

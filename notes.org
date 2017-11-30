@@ -4,7 +4,9 @@
    
    <stmtlist>    ::= <stmt>*
 
-   <stmt>        ::= <branch> | <while> | <sentence> ';'
+   <stmt>        ::= <fundef> | <branch> | <while> | <sentence> ';'
+
+   <fundef>      ::= 'fn' <ident> '(' <expr>* ')' '{' <stmtlist> '}'
 
    <branch>      ::= 'if' <sentence> '{' <stmtlist> '}' [ <else if> '{' <stmtlist> '}' [ <else> '{ <stmtlist> '}' ] ]
 
