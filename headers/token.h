@@ -1,27 +1,18 @@
-#ifndef token_h
-#define token_h
+#ifndef _TOKEN_H
+#define _TOKEN_H
 
-#define MAXBUFSIZE 500
+// Token types
+#define NUM  256
+#define DIV  257
+#define MOD  258
+#define ID   259
+#define DONE 260
 
-typedef enum toktype {
-    MAIN, INT, FLOAT, BOOL, STRING, PLUS, MINUS, TIMES, DIVIDE,
-    ASSIGN, IF, ELSE, WHILE, EQUALS, NEQUALS, LT, LTE, GT, GTE,
-    LPAREN, RPAREN, LBRACE, RBRACE, QUOTE, COMMA, POUND, IDENT,
-    ERR, END, FUNDEF, FUNCALL, SEMI, NOOP
-} toktype;
-char* tokname(toktype);
-
-typedef struct token_t token;
-
-token *token_new(toktype, char*, char*);
-toktype token_gettype(token*);
-void token_settype(token*, toktype);
-char *token_getvalue(token*);
-void token_setvalue(token*, char*);
-char *token_geterr(token*);
-char* token_str(token *);
-
-void token_delete(token*);
+struct Token {
+    int type;
+    int value;
+    Token() : type(0), value(0) {}
+    Token(int t, int v) : type(t), value(v) {}
+};
 
 #endif
-
