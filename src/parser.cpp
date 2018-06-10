@@ -61,7 +61,7 @@ int Parser::factor()
             match('('); res = expr(); match(')');
             return res;
         case NUM:
-            res = curr.value - '0';
+            res = curr.value;
             match(NUM);
             return res;
         default:
