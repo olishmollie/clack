@@ -1,14 +1,14 @@
-#include "../headers/global.h"
+#include "headers/global.h"
 
-void emit(int t, int tval)
+void eval(int t)
 {
     switch (t) {
-    case NUM: push(tval); break;
+    case NUM: push(tokenval); break;
     case '+': iadd(); break;
     case '-': isub(); break;
     case '*': imul(); break;
     case '/': idiv(); break;
     default:
-        printf("token %d, tokenval %d\n", t, tval);
+        ;
     }
 }

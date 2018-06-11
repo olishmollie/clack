@@ -8,7 +8,7 @@
 #include "stack.h"
 #include "parser.h"
 #include "lexer.h"
-#include "emitter.h"
+#include "evaluator.h"
 #include "error.h"
 
 #define EOS '\0'

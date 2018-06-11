@@ -1,4 +1,4 @@
-#include "../headers/global.h"
+#include "headers/global.h"
 
 int linenum = 1;
 int tokenval = NONE;

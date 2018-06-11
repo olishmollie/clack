@@ -1,4 +1,4 @@
-#include "../headers/global.h"
+#include "headers/global.h"
 
 int stack[MAXSIZE];
 int ip = -1;

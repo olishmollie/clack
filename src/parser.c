@@ -1,4 +1,4 @@
-#include "../headers/global.h"
+#include "headers/global.h"
 
 int lookahead;
 
@@ -16,7 +16,7 @@ void expr(char *input)
         switch (lookahead) {
         case '+': case '-':
             t = lookahead;
-            match(input, lookahead); term(input); emit(t, NONE);
+            match(input, lookahead); term(input); eval(t);
             continue;
         default:
             return;
@@ -32,7 +32,7 @@ void term(char *input)
         switch (lookahead) {
         case '*': case '/':
             t = lookahead;
-            match(input, lookahead); factor(input); emit(t, NONE);
+            match(input, lookahead); factor(input); eval(t);
             continue;
         default:
             return;
@@ -46,7 +46,7 @@ void factor(char *input)
     case '(':
         match(input, '('); expr(input); match(input, ')'); break;
     case NUM:
-        emit(NUM, tokenval); match(input, NUM); break;
+        eval(NUM); match(input, NUM); break;
     default:
         printf("unexpected '%c'\n", lookahead);
         error("syntax error");
