@@ -21,5 +21,6 @@
 int tokenval;
 int linenum;
 int lookahead;
+int neg;
 
 #endif

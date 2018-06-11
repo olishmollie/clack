@@ -1,6 +1,7 @@
 #include "headers/global.h"
 
-int lookahead;
+int lookahead = NONE;
+int neg = 1;
 
 void parse(char *input)
 {
@@ -45,8 +46,17 @@ void factor(char *input)
     switch (lookahead) {
     case '(':
         match(input, '('); expr(input); match(input, ')'); break;
+    case '+': case '-':
+        if (lookahead == '-')
+            neg *= -1;
+        match(input, lookahead);
+        factor(input);
+        break;
     case NUM:
-        eval(NUM); match(input, NUM); break;
+        tokenval *= neg;
+        eval(NUM); match(input, NUM);
+        neg = 1;
+        break;
     default:
         printf("unexpected '%c'\n", lookahead);
         error("syntax error");
@@ -57,5 +67,8 @@ void match(char *input, int t)
 {
     if (lookahead == t)
         lookahead = lexan(input);
-    else error("unexpected token error");
+    else {
+        printf("unexpected token '%c'\n", lookahead);
+        error("unexpected token error");
+    }
 }
