@@ -3,45 +3,24 @@
 int stack[MAXSIZE];
 int ip = -1;
 
-void stack_print()
+int stackpeek()
 {
-    printf("%d\n", stack[ip]);
+    return stack[ip];
 }
 
-void push(int k)
+void stackset(int k)
+{
+    stack[ip] = k;
+}
+
+void stackpush(int k)
 {
     stack[++ip] = k;
 }
 
-void pop()
+int stackpop()
 {
-    if (ip >= 0) --ip;
-    else error("cannot pop from empty stack");
-}
-
-void iadd() {
-    int top = stack[ip];
-    pop();
-    stack[ip] = stack[ip] + top;
-}
-
-void isub() {
-    int top = stack[ip];
-    pop();
-    stack[ip] = stack[ip] - top;
-}
-
-void imul() {
-    int top = stack[ip];
-    pop();
-    stack[ip] = stack[ip] * top;
-}
-
-void idiv() {
-    int top = stack[ip];
-    if (top != 0) {
-        pop();
-        stack[ip] = stack[ip] / top;
-    }
-    else error("division by zero");
+    if (ip > 0) return stack[ip--];
+    else error("cannot stackpop from empty stack");
+    return 0;
 }

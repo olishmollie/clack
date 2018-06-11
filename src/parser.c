@@ -7,6 +7,7 @@ void parse(char *input)
 {
     lookahead = lexan(input);
     expr(input);
+    lexreset();
 }
 
 void expr(char *input)

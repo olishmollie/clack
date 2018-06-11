@@ -3,4 +3,9 @@
 
 void eval(int);
 
+void iadd();
+void isub();
+void imul();
+void idiv();
+
 #endif

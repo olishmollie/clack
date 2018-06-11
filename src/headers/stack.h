@@ -3,13 +3,16 @@
 
 #define MAXSIZE 128
 
-void push(int);
-void pop();
-void stack_print();
+// Returns top of the stack.
+int stackpeek();
 
-void iadd();
-void isub();
-void imul();
-void idiv();
+// Overwrites top of the stack.
+void stackset(int);
+
+// Pushes on to the stack.
+void stackpush(int);
+
+// Pops off the stack.
+int stackpop();
 
 #endif

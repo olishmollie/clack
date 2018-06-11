@@ -11,9 +11,8 @@ int main(int argc, char** argv) {
     char *input = readline("fig> ");
     add_history(input);
     parse(input);
-    stack_print();
+    printf("%d\n", stackpeek());
     free(input);
-    reset();
   }
 
   return 0;

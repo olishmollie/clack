@@ -2,6 +2,6 @@
 #define _LEXER_H
 
 int lexan(char *);
-void reset();
+void lexreset();
 
 #endif

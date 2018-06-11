@@ -32,7 +32,7 @@ int lexan(char *input)
     }
 }
 
-void reset()
+void lexreset()
 {
     cur = 0;
 }

@@ -6,67 +6,67 @@ void test_add()
 {
     char input[] = "40 + 2";
     parse(input);
-    assert(stacktop() == 42);
+    assert(stackpeek() == 42);
 }
 
 void test_sub()
 {
     char input[] = "40 - 2";
     parse(input);
-    assert(stacktop() == 38);
+    assert(stackpeek() == 38);
 }
 
 void test_mul()
 {
     char input[] = "42 * 3";
     parse(input);
-    assert(stacktop() == 126);
+    assert(stackpeek() == 126);
 }
 
 void test_div()
 {
     char input[] = "42 / 6";
     parse(input);
-    assert(stacktop() == 7);
+    assert(stackpeek() == 7);
 }
 
 void test_negatives()
 {
     char input[] = "-42 + 35";
     parse(input);
-    assert(stacktop() == -7);
+    assert(stackpeek() == -7);
 }
 
 void test_unary_operators()
 {
     char input[] = "5 - --2";
     parse(input);
-    assert(stacktop() == 3);
+    assert(stackpeek() == 3);
 }
 
 void test_whitespace()
 {
     char one[] = "5 *     2+3";
     parse(one);
-    assert(stacktop() == 13);
+    assert(stackpeek() == 13);
 
     char two[] = "5+34*2/2";
     parse(two);
-    assert(stacktop() == 39);
+    assert(stackpeek() == 39);
 }
 
 void test_order()
 {
     char input[] = "5 + 3 * 2 / 2";
     parse(input);
-    assert(stack_top() == 8);
+    assert(stackpeek() == 8);
 }
 
 void test_grouping()
 {
     char input[] = "(5 * (5 + (100 / 20)) - (4 * 2))";
     parse(input);
-    assert(stack_top() == 42);
+    assert(stackpeek() == 42);
 }
 
 int main(void) {
