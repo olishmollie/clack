@@ -1,2 +1,2 @@
-repl: main.cpp src/lexer.cpp src/parser.cpp 
-	g++ -std=c++14 -Wall main.cpp src/lexer.cpp src/parser.cpp -o fig
+repl: main.c src/lexer.c src/parser.c src/emitter.c src/error.c
+	cc main.c src/lexer.c src/parser.c src/emitter.c src/error.c -o fig
