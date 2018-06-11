@@ -2,23 +2,21 @@
 
 int lookahead;
 
-void parse()
+void parse(char *input)
 {
-    lookahead = lexan();
-    while (lookahead != DONE) {
-        expr(); match(';');
-    }
+    lookahead = lexan(input);
+    expr(input);
 }
 
-void expr()
+void expr(char *input)
 {
     int t;
-    term();
+    term(input);
     while(1) {
         switch (lookahead) {
         case '+': case '-':
             t = lookahead;
-            match(lookahead); term(); emit(t, NONE);
+            match(input, lookahead); term(input); emit(t, NONE);
             continue;
         default:
             return;
@@ -26,15 +24,15 @@ void expr()
     }
 }
 
-void term()
+void term(char *input)
 {
     int t;
-    factor();
+    factor(input);
     while (1) {
         switch (lookahead) {
         case '*': case '/':
             t = lookahead;
-            match(lookahead); factor(); emit(t, NONE);
+            match(input, lookahead); factor(input); emit(t, NONE);
             continue;
         default:
             return;
@@ -42,21 +40,22 @@ void term()
     }
 }
 
-void factor()
+void factor(char *input)
 {
     switch (lookahead) {
     case '(':
-        match('('); expr(); match(')'); break;
+        match(input, '('); expr(input); match(input, ')'); break;
     case NUM:
-        emit(NUM, tokenval); match(NUM); break;
+        emit(NUM, tokenval); match(input, NUM); break;
     default:
+        printf("unexpected '%c'\n", lookahead);
         error("syntax error");
     }
 }
 
-void match(int t)
+void match(char *input, int t)
 {
     if (lookahead == t)
-        lookahead = lexan();
-    else error("syntax error");
+        lookahead = lexan(input);
+    else error("unexpected token error");
 }

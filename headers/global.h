@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "stack.h"
 #include "parser.h"
 #include "lexer.h"
 #include "emitter.h"
@@ -17,8 +18,8 @@
 #define ID   257
 #define DONE 260
 
-extern int tokenval;
-extern int linenum; 
-extern int lookahead;
+int tokenval;
+int linenum;
+int lookahead;
 
 #endif

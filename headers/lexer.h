@@ -1,6 +1,7 @@
 #ifndef _LEXER_H
 #define _LEXER_H
 
-int lexan();
+int lexan(char *);
+void reset();
 
 #endif

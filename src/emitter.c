@@ -3,10 +3,11 @@
 void emit(int t, int tval)
 {
     switch (t) {
-    case '+': case '-': case '*': case '/':
-        printf("%c\n", t); break;
-    case NUM:
-        printf("%d\n", tval); break;
+    case NUM: push(tval); break;
+    case '+': iadd(); break;
+    case '-': isub(); break;
+    case '*': imul(); break;
+    case '/': idiv(); break;
     default:
         printf("token %d, tokenval %d\n", t, tval);
     }

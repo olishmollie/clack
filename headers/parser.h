@@ -1,10 +1,10 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 
-void parse();
-void expr();
-void term();
-void factor();
-void match(int);
+void parse(char*);
+void expr(char*);
+void term(char*);
+void factor(char*);
+void match(char*, int);
 
 #endif
