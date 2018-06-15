@@ -1,4 +1,4 @@
-#include "headers/global.h"
+#include "global.h"
 
 int lookahead = NONE;
 int neg = 1;

@@ -1,4 +1,4 @@
-#include "src/headers/global.h"
+#include "src/global.h"
 
 #include <editline/readline.h>
 

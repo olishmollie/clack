@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../src/headers/global.h"
+#include "../src/global.h"
 
 void test_add()
 {
