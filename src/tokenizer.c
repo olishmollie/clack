@@ -1,5 +1,4 @@
 #include "tokenizer.h"
-#include "token.h"
 #include "error.h"
 
 #include <stdlib.h>
@@ -24,7 +23,7 @@ Tokenizer *TokenizerInit(char *input)
 {
     Tokenizer *t = malloc(sizeof(Tokenizer));
     if (t == NULL) {
-        error("out of memory");
+        fatal("out of memory");
     }
     t->start = t->pos = 0;
     t->input = input;

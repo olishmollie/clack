@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void error(char *m)
+void fatal(char *m)
 {
     fprintf(stderr, "%s\n", m);
     exit(1);

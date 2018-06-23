@@ -1,5 +1,4 @@
 #include "../src/tokenizer.h"
-#include "../src/token.h"
 
 #include <string.h>
 #include <assert.h>
