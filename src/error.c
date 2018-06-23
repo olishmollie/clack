@@ -1,7 +1,8 @@
-#include "global.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void error(char *m)
 {
-    fprintf(stderr, "line %d: %s\n", linenum, m);
+    fprintf(stderr, "%s\n", m);
     exit(1);
 }

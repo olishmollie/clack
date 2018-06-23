@@ -1,5 +1,7 @@
-repl: main.c src/stack.c src/lexer.c src/parser.c src/evaluator.c src/error.c
-	cc main.c src/stack.c src/lexer.c src/parser.c src/evaluator.c src/error.c -ledit -o bin/fig
+all: fig test
 
-test: src/stack.c src/lexer.c src/parser.c src/evaluator.c src/error.c test/test.c
-	cc src/stack.c src/lexer.c src/parser.c src/evaluator.c src/error.c test/test.c -o bin/test
+fig: main.c src/tokenizer.c src/error.c src/token.c
+	cc main.c src/tokenizer.c src/error.c src/token.c -ledit -o bin/fig
+
+test: test/tokenizer.c src/tokenizer.c src/error.c src/token.c
+	cc test/tokenizer.c src/tokenizer.c src/error.c src/token.c -o test/bin/tokenizer
