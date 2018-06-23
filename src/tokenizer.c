@@ -61,17 +61,26 @@ Token lexan(Tokenizer *t)
 
 Token lexDigit(Tokenizer *t)
 {
-    int frac = 0;
+    int frac = 0, rat = 0;
     char *digits = "0123456789";
     acceptRun(t, digits);
-    if (accept(t, ".")) {
+    if (accept(t, "/")) {
+        rat = 1;
+        acceptRun(t, digits);
+    } else if (accept(t, ".")) {
         frac = 1;
         acceptRun(t, digits);
     }
-    if (isalpha(peek(t))) {
+    if (isalpha(peek(t)) || ispunct(peek(t))) {
         return lexError(t, "bad number syntax");
     }
-    return produce(t, frac ? tokenFLOAT : tokenINT);
+
+    TokenType typ;
+    if (rat) typ = tokenRAT;
+    else if (frac) typ = tokenFLOAT;
+    else typ = tokenINT;
+
+    return produce(t, typ);
 }
 
 char *currVal(Tokenizer *t)

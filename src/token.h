@@ -14,6 +14,7 @@ typedef enum TokenType {
    tokenERROR,
    tokenINT,
    tokenFLOAT,
+   tokenRAT,
    tokenLPAREN,
    tokenRPAREN,
    tokenPLUS,

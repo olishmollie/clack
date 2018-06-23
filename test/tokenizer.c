@@ -19,6 +19,7 @@ int main(void)
 {
     testToken("42", tokenINT, "int");
     testToken("3.14159", tokenFLOAT, "float");
+    testToken("3/4", tokenRAT, "rational");
     testToken("foobar", tokenIDENT, "ident");
     testToken("log", tokenLOG, "log");
     testToken("ln", tokenLN, "ln");
