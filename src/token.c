@@ -13,3 +13,7 @@ void TokenPrint(Token t)
     printf("<type: %d, val: %s >\n", t.type, t.val);
 }
 
+void TokenDelete(Token t)
+{
+    free(t.val);
+}

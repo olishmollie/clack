@@ -5,3 +5,6 @@ fig: main.c src/tokenizer.c src/error.c src/token.c
 
 test: test/tokenizer.c src/tokenizer.c src/error.c src/token.c
 	cc test/tokenizer.c src/tokenizer.c src/error.c src/token.c -o test/bin/tokenizer
+
+lextest:
+	./test/bin/tokenizer

@@ -7,14 +7,18 @@
 #include <ctype.h>
 
 Token lexan(Tokenizer *t);
+Token lexSpace(Tokenizer *t);
 Token lexDigit(Tokenizer *t);
 Token lexIdent(Tokenizer *t);
+Token lexPunct(Tokenizer *t);
 Token produce(Tokenizer *t, TokenType type);
 int accept(Tokenizer *t, char *valid);
 void acceptRun(Tokenizer *t, char *valid);
 char peek(Tokenizer *t);
 char next(Tokenizer *t);
+void ignore(Tokenizer *t);
 void backup(Tokenizer *t);
+Token lexError(Tokenizer *t, char *msg);
 
 Tokenizer *TokenizerInit(char *input)
 {
@@ -33,6 +37,7 @@ void TokenizerRun(Tokenizer *t)
     Token tok = lexan(t);
     while (tok.type != tokenEOF) {
         TokenPrint(tok);
+        TokenDelete(tok);
         tok = lexan(t);
     }
 }
@@ -40,20 +45,19 @@ void TokenizerRun(Tokenizer *t)
 Token lexan(Tokenizer *t)
 {
     char c = next(t);
-    while (isspace(c)) {
-        c = next(t);
-    }
-    backup(t);
 
     if (c < 0)
         return NewToken(tokenEOF, "NONE");
-    else if (accept(t, "+-") || isdigit(c))
+    else if (c == ' ')
+        return produce(t, tokenSPACE);
+    else if (isdigit(c))
         return lexDigit(t);
-    else if (isalnum(c)) {
+    else if (isalnum(c))
         return lexIdent(t);
-    }
+    else if (ispunct(c))
+        return lexPunct(t);
 
-    return NewToken(tokenERROR, "got to end of lexer");
+    return lexError(t, "got to end of lexer");
 }
 
 Token lexDigit(Tokenizer *t)
@@ -64,6 +68,9 @@ Token lexDigit(Tokenizer *t)
     if (accept(t, ".")) {
         frac = 1;
         acceptRun(t, digits);
+    }
+    if (isalpha(peek(t))) {
+        return lexError(t, "bad number syntax");
     }
     return produce(t, frac ? tokenFLOAT : tokenINT);
 }
@@ -87,19 +94,49 @@ Token lexIdent(Tokenizer *t)
         res = produce(t, tokenLOG);
     else if (strcmp(cur, "ln") == 0)
         res = produce(t, tokenLN);
-    else if (strcmp(cur, "pow") == 0)
-        res = produce(t, tokenPOW);
     else res = produce(t, tokenIDENT);
     free(cur);
     return res;
 }
 
+Token lexPunct(Tokenizer *t)
+{
+    backup(t);
+    char c = next(t);
+    switch (c) {
+    case '+':
+        return produce(t, tokenPLUS);
+    case '-':
+        return produce(t, tokenMINUS);
+    case '/':
+        return produce(t, tokenSLASH);
+    case '&':
+        return produce(t, tokenAMPERSAND);
+    case '(':
+        return produce(t, tokenLPAREN);
+    case ')':
+        return produce(t, tokenRPAREN);
+    case '|':
+        return produce(t, tokenPIPE);
+    case '*':
+        if (peek(t) == '*') {
+            next(t);
+            return produce(t, tokenDBLSTAR);
+        }
+        return produce(t, tokenSTAR);
+    case '<':
+        if (peek(t) == '<') {
+            next(t);
+            return produce(t, tokenLSHIFT);
+        }
+        return produce(t, tokenLCARAT);
+    }
+    return lexError(t, "unknown punctuation");
+}
+
 Token produce(Tokenizer *t, TokenType type)
 {
-    int len = t->pos - t->start;
-    char val[len+1];
-    strncpy(val, &t->input[t->start], len);
-    val[len] = '\0';
+    char *val = currVal(t);
     t->start = t->pos;
     return NewToken(type, val);
 }
@@ -137,9 +174,25 @@ char next(Tokenizer *t)
     return -1;
 }
 
+void ignore(Tokenizer *t)
+{
+    t->start = t->pos;
+}
+
 void backup(Tokenizer *t)
 {
     t->pos--;
+}
+
+Token lexError(Tokenizer *t, char *msg)
+{
+    int len = strlen(msg);
+    char *m = malloc(sizeof(char)*len+1);
+    strcpy(m, msg);
+    m[len] = '\0';
+    next(t);
+    t->start = t->pos;
+    return NewToken(tokenERROR, m);
 }
 
 void TokenizerDelete(Tokenizer *t)

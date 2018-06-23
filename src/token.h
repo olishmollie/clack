@@ -19,16 +19,23 @@ typedef enum TokenType {
    tokenPLUS,
    tokenMINUS,
    tokenSTAR,
+   tokenDBLSTAR,
    tokenSLASH,
    tokenPERCENT,
+   tokenAMPERSAND,
+   tokenPIPE,
+   tokenLCARAT,
+   tokenLSHIFT,
    tokenLOG,
    tokenLN,
    tokenPOW,
-   tokenIDENT
+   tokenIDENT,
+   tokenSPACE
 } TokenType;
 
 Token NewToken(int type, char *val);
 
 void TokenPrint(Token t);
+void TokenDelete(Token t);
 
 #endif
