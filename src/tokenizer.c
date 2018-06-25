@@ -103,14 +103,14 @@ Token lexIdent(Tokenizer *t)
 {
     char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     acceptRun(t, alphabet);
-    char *cur = currVal(t);
+    char *val = currVal(t);
     Token res;
-    if (strcmp(cur, "log") == 0)
-        res = produce(t, tokenLOG);
-    else if (strcmp(cur, "ln") == 0)
-        res = produce(t, tokenLN);
+    if (strcmp(val, "log") == 0)
+        res = produce(t, tokenBUILTIN);
+    else if (strcmp(val, "ln") == 0)
+        res = produce(t, tokenBUILTIN);
     else res = produce(t, tokenIDENT);
-    free(cur);
+    free(val);
     return res;
 }
 

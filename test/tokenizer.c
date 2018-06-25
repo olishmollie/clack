@@ -41,8 +41,6 @@ int main(void)
     testToken("3.14159", tokenFLOAT, "float");
     testToken("3/4", tokenRAT, "rational");
     testToken("foobar", tokenIDENT, "ident");
-    testToken("log", tokenLOG, "log");
-    testToken("ln", tokenLN, "ln");
 
     testToken("/", tokenSLASH, "slash");
     testToken("&", tokenAMPERSAND, "ampersand");
@@ -61,7 +59,7 @@ int main(void)
         { tokenLPAREN, "(", "lparen" },
         { tokenINT, "3", "int" },
         { tokenPLUS, "+", "plus" },
-        { tokenLN, "ln", "ln" },
+        { tokenBUILTIN, "ln", "ln" },
         { tokenLPAREN, "(", "lparen" },
         { tokenINT, "4", "int" },
         { tokenRPAREN, ")", "rparen" },

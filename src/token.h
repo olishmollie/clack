@@ -27,10 +27,8 @@ typedef enum TokenType {
    tokenPIPE,
    tokenLCARAT,
    tokenLSHIFT,
-   tokenLOG,
-   tokenLN,
-   tokenPOW,
    tokenIDENT,
+   tokenBUILTIN,
    tokenSPACE
 } TokenType;
 
