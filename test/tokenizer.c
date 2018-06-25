@@ -1,5 +1,6 @@
 #include "../src/tokenizer.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -13,6 +14,25 @@ void testToken(char *input, TokenType type, char *tokenType)
     free(t);
     TokenDelete(tok);
     printf("Test passed.\n\n");
+}
+
+typedef struct TokenTest {
+    TokenType type;
+    char * val;
+    char * typeName;
+} TokenTest;
+
+void testExpression(char *input, TokenTest key[])
+{
+    Tokenizer *t = TokenizerInit(input);
+    Token tok;
+    int i;
+    for (i = 0, tok = lexan(t); tok.type != tokenEOF; i++, tok = lexan(t)) {
+        printf("Testing %s -- ", key[i].typeName);
+        assert(tok.type == key[i].type);
+        assert(strcmp(tok.val, key[i].val) == 0);
+        printf("Test passed.\n\n");
+    }
 }
 
 int main(void)
@@ -35,6 +55,27 @@ int main(void)
     testToken("*", tokenSTAR, "star");
     testToken("**", tokenDBLSTAR, "dblstar");
     testToken("/", tokenSLASH, "slash");
+
+    char *expr = "(3 + ln(4))/(4**x - 3.14159)";
+    TokenTest key[] = {
+        { tokenLPAREN, "(", "lparen" },
+        { tokenINT, "3", "int" },
+        { tokenPLUS, "+", "plus" },
+        { tokenLN, "ln", "ln" },
+        { tokenLPAREN, "(", "lparen" },
+        { tokenINT, "4", "int" },
+        { tokenRPAREN, ")", "rparen" },
+        { tokenRPAREN, ")", "rparen" },
+        { tokenSLASH, "/", "slash" },
+        { tokenLPAREN, "(", "lparen" },
+        { tokenINT, "4", "int" },
+        { tokenDBLSTAR, "**", "dblstar" },
+        { tokenIDENT, "x", "ident" },
+        { tokenMINUS, "-", "minus" },
+        { tokenFLOAT, "3.14159", "float" },
+        { tokenRPAREN, ")", "rparen" }
+    };
+    testExpression(expr, key);
 
     return 0;
 }

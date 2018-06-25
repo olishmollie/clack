@@ -6,7 +6,7 @@
 #include <ctype.h>
 
 Token lexan(Tokenizer *t);
-Token lexSpace(Tokenizer *t);
+void skipWhitespace(Tokenizer *t);
 Token lexDigit(Tokenizer *t);
 Token lexIdent(Tokenizer *t);
 Token lexPunct(Tokenizer *t);
@@ -43,12 +43,11 @@ void TokenizerRun(Tokenizer *t)
 
 Token lexan(Tokenizer *t)
 {
+    skipWhitespace(t);
     char c = next(t);
 
     if (c < 0)
         return NewToken(tokenEOF, "NONE");
-    else if (c == ' ')
-        return produce(t, tokenSPACE);
     else if (isdigit(c))
         return lexDigit(t);
     else if (isalnum(c))
@@ -56,7 +55,15 @@ Token lexan(Tokenizer *t)
     else if (ispunct(c))
         return lexPunct(t);
 
-    return lexError(t, "got to end of lexer");
+    return lexError(t, "illegal token");
+}
+
+void skipWhitespace(Tokenizer *t)
+{
+    while (isspace(t->input[t->pos])) {
+        t->pos++;
+        ignore(t);
+    }
 }
 
 Token lexDigit(Tokenizer *t)
@@ -71,7 +78,7 @@ Token lexDigit(Tokenizer *t)
         frac = 1;
         acceptRun(t, digits);
     }
-    if (isalpha(peek(t)) || ispunct(peek(t))) {
+    if (isalpha(peek(t))) {
         return lexError(t, "bad number syntax");
     }
 
