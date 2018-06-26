@@ -69,7 +69,6 @@ int eval_ans()
     }
     StackEntry e;
     int offset = top - arg.ival;
-    printf("offset = %d\n", offset);
     e.type = stack[offset].type;
     switch (e.type) {
     case tokenINT:
@@ -300,7 +299,6 @@ int eval_bwxor(StackEntry left, StackEntry right)
 
 int eval_pow(StackEntry left, StackEntry right)
 {
-    printf("Entering pow...\n");
     StackEntry e;
     int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
     if (frac) {
