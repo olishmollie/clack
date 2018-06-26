@@ -1,4 +1,3 @@
-#include "global.h"
 #include "evaluator.h"
 
 #include <stdio.h>

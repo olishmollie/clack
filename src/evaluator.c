@@ -1,4 +1,3 @@
-#include "global.h"
 #include "evaluator.h"
 #include "error.h"
 
@@ -8,66 +7,6 @@
 
 StackEntry stack[STACKSIZE];
 int top = -1;
-
-/* ********** BUILTINS ********* */
-int eval_ln();
-int eval_log();
-
-int eval_builtin(Token builtin)
-{
-    int res = 0;
-    if (strcmp(builtin.val, "ln") == 0) {
-        token_delete(builtin);
-        res = eval_ln();
-    }
-    else if (strcmp(builtin.val, "log") == 0) {
-        token_delete(builtin);
-        res = eval_log();
-    }
-    return res;
-}
-
-int eval_ln()
-{
-    StackEntry e;
-    StackEntry arg = stack[top];
-    e.type = tokenFLOAT;
-    if (arg.type == tokenINT) {
-        e.fval = log(arg.ival);
-    } else {
-        e.fval = log(arg.fval);
-    }
-    stack[top] = e;
-    return 1;
-}
-
-int eval_log()
-{
-    StackEntry e;
-    StackEntry arg = stack[top];
-    e.type = tokenFLOAT;
-    if (arg.type == tokenINT) {
-        e.fval = log10(arg.ival);
-    } else {
-        e.fval = log(arg.fval);
-    }
-    stack[top] = e;
-    return 1;
-}
-
-/* TODO: fix this shit */
-// int eval_ans()
-// {
-//     int numEntries = top + 1;
-//     if (stack[top].type != tokenINT)
-//         return stack_error("invalid arg for ans(): must be type int");
-//     if (stack[top].ival > numEntries)
-//         return stack_error("invalid arg for ans(): not enough stack space");
-//     int offset = top - stack[top].ival;
-//     printf("offset = %d\n", offset);
-//     stack[top] = stack[offset];
-//     return 1;
-// }
 
 /* ********** BINOPS ********** */
 int eval_add(StackEntry left, StackEntry right);
@@ -86,7 +25,6 @@ int eval_binop(Token op)
     StackEntry right = stack[top];
     stack_pop();
     StackEntry left = stack[top];
-    printf("left.ival = %d, right.ival = %d\n", left.ival, right.ival);
     switch (op.type) {
         case tokenPLUS:
             return eval_add(left, right);

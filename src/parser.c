@@ -1,4 +1,3 @@
-#include "global.h"
 #include "parser.h"
 #include "evaluator.h"
 #include "tokenizer.h"
@@ -16,11 +15,11 @@ void match(Tokenizer *t, TokenType typ);
 
 void parse(char *input)
 {
-    Tokenizer *t = TokenizerInit(input);
+    Tokenizer *t = tokenizer_init(input);
     curr = lexan(t);
     expr(t);
     stack_print();
-    TokenizerDelete(t);
+    tokenizer_delete(t);
 }
 
 void expr(Tokenizer *t)
@@ -74,7 +73,6 @@ void factor(Tokenizer* t)
         e.ival = neg * atoi(tok.val);
         match(t, tokenINT);
         stack_push(e);
-        token_delete(tok);
         neg = 1;
         break;
     case tokenFLOAT:
@@ -83,16 +81,7 @@ void factor(Tokenizer* t)
         e.fval = neg * atof(tok.val);
         match(t, tokenFLOAT);
         stack_push(e);
-        token_delete(tok);
         neg = 1;
-        break;
-    case tokenBUILTIN:
-        tok = curr;
-        match(t, tokenBUILTIN);
-        match(t, tokenLPAREN);
-        expr(t);
-        match(t, tokenRPAREN);
-        eval_builtin(tok);
         break;
     case tokenLPAREN:
         match(t, tokenLPAREN);

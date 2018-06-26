@@ -12,12 +12,12 @@ typedef struct Tokenizer {
     int pos;
 } Tokenizer;
 
-Tokenizer *TokenizerInit(char *input);
+Tokenizer *tokenizer_init(char *input);
 
-void TokenizerRun(Tokenizer *t);
+void tokenizer_run(Tokenizer *t);
 
 Token lexan(Tokenizer *t);
 
-void TokenizerDelete(Tokenizer *t);
+void tokenizer_delete(Tokenizer *t);
 
 #endif

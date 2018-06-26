@@ -1,4 +1,3 @@
-#include "global.h"
 #include "tokenizer.h"
 #include "error.h"
 
@@ -20,7 +19,7 @@ void ignore(Tokenizer *t);
 void backup(Tokenizer *t);
 Token lexError(Tokenizer *t, char *msg);
 
-Tokenizer *TokenizerInit(char *input)
+Tokenizer *tokenizer_init(char *input)
 {
     Tokenizer *t = malloc(sizeof(Tokenizer));
     if (t == NULL) {
@@ -32,12 +31,11 @@ Tokenizer *TokenizerInit(char *input)
     return t;
 }
 
-void TokenizerRun(Tokenizer *t)
+void tokenizer_run(Tokenizer *t)
 {
     Token tok = lexan(t);
     while (tok.type != tokenEOF) {
         token_print(tok);
-        token_delete(tok);
         tok = lexan(t);
     }
 }
@@ -48,7 +46,7 @@ Token lexan(Tokenizer *t)
     char c = next(t);
 
     if (c < 0)
-        return new_token(tokenEOF, "NONE");
+        return token_new(tokenEOF, "NONE", 4);
     else if (isdigit(c))
         return lexDigit(t);
     else if (isalnum(c))
@@ -91,28 +89,11 @@ Token lexDigit(Tokenizer *t)
     return produce(t, typ);
 }
 
-char *currVal(Tokenizer *t)
-{
-    int len = t->pos - t->start;
-    char *val = malloc(sizeof(char)*len+1);
-    strncpy(val, &t->input[t->start], len);
-    val[len] = '\0';
-    return val;
-}
-
 Token lexIdent(Tokenizer *t)
 {
     char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     acceptRun(t, alphabet);
-    char *val = currVal(t);
-    Token res;
-    if (strcmp(val, "log") == 0)
-        res = produce(t, tokenBUILTIN);
-    else if (strcmp(val, "ln") == 0)
-        res = produce(t, tokenBUILTIN);
-    else res = produce(t, tokenIDENT);
-    free(val);
-    return res;
+    return produce(t, tokenIDENT);
 }
 
 Token lexPunct(Tokenizer *t)
@@ -156,9 +137,10 @@ Token lexPunct(Tokenizer *t)
 
 Token produce(Tokenizer *t, TokenType type)
 {
-    char *val = currVal(t);
+    int len = t->pos - t->start;
+    Token tok = token_new(type, &t->input[t->start], len);
     t->start = t->pos;
-    return new_token(type, val);
+    return tok;
 }
 
 int accept(Tokenizer *t, char *valid)
@@ -207,16 +189,12 @@ void backup(Tokenizer *t)
 Token lexError(Tokenizer *t, char *msg)
 {
     int len = strlen(msg);
-    char *m = malloc(sizeof(char)*len+1);
-    strcpy(m, msg);
-    m[len] = '\0';
     next(t);
     t->start = t->pos;
-    return new_token(tokenERROR, m);
+    return token_new(tokenERROR, msg, len);
 }
 
-void TokenizerDelete(Tokenizer *t)
+void tokenizer_delete(Tokenizer *t)
 {
-    free(t->input);
     free(t);
 }

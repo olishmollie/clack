@@ -15,7 +15,6 @@ typedef struct StackEntry {
     };
 } StackEntry;
 
-int eval_builtin(Token builtin);
 int eval_binop(Token op);
 int stack_push(StackEntry e);
 int stack_pop();

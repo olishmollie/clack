@@ -1,20 +1,20 @@
-#include "global.h"
 #include "token.h"
+#include "error.h"
 
-Token new_token(int type, char *val)
+#include <string.h>
+
+Token token_new(int type, char *val, int len)
 {
     Token t;
     t.type = type;
-    t.val = val;
+    if (len >= MAXLEN)
+        fatal("token value too long");
+    strncpy(t.val, val, len+1);
+    t.val[len] = '\0';
     return t;
 }
 
 void token_print(Token t)
 {
     printf("<type: %d, val: \"%s\" >\n", t.type, t.val);
-}
-
-void token_delete(Token t)
-{
-    free(t.val);
 }

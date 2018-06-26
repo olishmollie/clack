@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAXLEN 20
+
 typedef struct Token {
     int type;
-    char *val;
+    char val[MAXLEN];
 } Token;
 
 typedef enum TokenType {
@@ -33,9 +35,7 @@ typedef enum TokenType {
    tokenSPACE
 } TokenType;
 
-Token new_token(int type, char *val);
-
+Token token_new(int type, char *val, int len);
 void token_print(Token t);
-void token_delete(Token t);
 
 #endif
