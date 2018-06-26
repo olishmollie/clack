@@ -7,6 +7,7 @@
 #include <string.h>
 
 Token curr;
+int neg = 1;
 
 void expr(Tokenizer *t);
 void term(Tokenizer *t);
@@ -59,21 +60,31 @@ void factor(Tokenizer* t)
     StackEntry e;
     Token tok;
     switch (curr.type) {
+    case tokenPLUS:
+    case tokenMINUS:
+        tok = curr;
+        if (curr.type == tokenMINUS)
+            neg *= -1;
+        match(t, tok.type);
+        factor(t);
+        break;
     case tokenINT:
         tok = curr;
         e.type = tok.type;
-        e.ival = atoi(tok.val);
+        e.ival = neg * atoi(tok.val);
         match(t, tokenINT);
         stack_push(e);
         token_delete(tok);
+        neg = 1;
         break;
     case tokenFLOAT:
         tok = curr;
         e.type = tok.type;
-        e.fval = atof(tok.val);
+        e.fval = neg * atof(tok.val);
         match(t, tokenFLOAT);
         stack_push(e);
         token_delete(tok);
+        neg = 1;
         break;
     case tokenBUILTIN:
         tok = curr;

@@ -110,8 +110,6 @@ Token lexIdent(Tokenizer *t)
         res = produce(t, tokenBUILTIN);
     else if (strcmp(val, "ln") == 0)
         res = produce(t, tokenBUILTIN);
-    else if (strcmp(val, "ans") == 0)
-        res = produce(t, tokenBUILTIN);
     else res = produce(t, tokenIDENT);
     free(val);
     return res;

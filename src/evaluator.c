@@ -12,7 +12,6 @@ int top = -1;
 /* ********** BUILTINS ********* */
 int eval_ln();
 int eval_log();
-int eval_ans();
 
 int eval_builtin(Token builtin)
 {
@@ -24,10 +23,6 @@ int eval_builtin(Token builtin)
     else if (strcmp(builtin.val, "log") == 0) {
         token_delete(builtin);
         res = eval_log();
-    }
-    else if (strcmp(builtin.val, "ans") == 0) {
-        token_delete(builtin);
-        res = eval_ans();
     }
     return res;
 }
@@ -60,29 +55,19 @@ int eval_log()
     return 1;
 }
 
-int eval_ans()
-{
-    StackEntry arg = stack[top];
-    int numEntries = top+1;
-    if (arg.type != tokenINT || arg.ival >= numEntries || arg.ival <= 0) {
-        fatal("invalid ans argument");
-    }
-    StackEntry e;
-    int offset = top - arg.ival;
-    e.type = stack[offset].type;
-    switch (e.type) {
-    case tokenINT:
-        e.ival = stack[offset].ival;
-        break;
-    case tokenFLOAT:
-        e.fval = stack[offset].fval;
-        break;
-    default:
-        return 0;
-    }
-    stack[top] = e;
-    return 1;
-}
+/* TODO: fix this shit */
+// int eval_ans()
+// {
+//     int numEntries = top + 1;
+//     if (stack[top].type != tokenINT)
+//         return stack_error("invalid arg for ans(): must be type int");
+//     if (stack[top].ival > numEntries)
+//         return stack_error("invalid arg for ans(): not enough stack space");
+//     int offset = top - stack[top].ival;
+//     printf("offset = %d\n", offset);
+//     stack[top] = stack[offset];
+//     return 1;
+// }
 
 /* ********** BINOPS ********** */
 int eval_add(StackEntry left, StackEntry right);
@@ -101,6 +86,7 @@ int eval_binop(Token op)
     StackEntry right = stack[top];
     stack_pop();
     StackEntry left = stack[top];
+    printf("left.ival = %d, right.ival = %d\n", left.ival, right.ival);
     switch (op.type) {
         case tokenPLUS:
             return eval_add(left, right);
@@ -351,16 +337,16 @@ void stack_print()
         char *arrow = (i == top) ? "<-" : "";
         switch (stack[i].type) {
         case tokenINT:
-            printf("%d: %d %s\n", i+1, stack[i].ival, arrow);
+            printf("%d: %d %s\n", i, stack[i].ival, arrow);
             break;
         case tokenFLOAT:
-            printf("%d: %f %s\n", i+1, stack[i].fval, arrow);
+            printf("%d: %f %s\n", i, stack[i].fval, arrow);
             break;
         case tokenIDENT:
-            printf("%d: %s %s\n", i+1, stack[i].ident, arrow);
+            printf("%d: %s %s\n", i, stack[i].ident, arrow);
             break;
         case tokenERROR:
-            printf("%d: %s %s\n", i+1, stack[i].err, arrow);
+            printf("%d: %s %s\n", i, stack[i].err, arrow);
         default:
             ;
         }
