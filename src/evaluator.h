@@ -19,9 +19,9 @@ int eval_builtin(Token builtin);
 int eval_binop(Token op);
 int stack_push(StackEntry e);
 int stack_pop();
-void stack_clear();
 void stack_print();
 
-void stack_delete();
+void stack_clear();
+int stack_error();
 
 #endif

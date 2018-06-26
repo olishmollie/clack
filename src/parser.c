@@ -28,7 +28,8 @@ void expr(Tokenizer *t)
     Token tok;
     while (curr.type == tokenPLUS ||
            curr.type == tokenMINUS ||
-           curr.type == tokenAMPERSAND || /* TODO: implement bitwise ops */
+           curr.type == tokenPERCENT ||
+           curr.type == tokenAMPERSAND ||
            curr.type == tokenPIPE
     ) {
         tok = curr;
@@ -42,16 +43,14 @@ void term(Tokenizer *t)
 {
     factor(t);
     Token tok;
-    while (curr.type == tokenSTAR || curr.type == tokenSLASH) {
-        switch (curr.type) {
-            case tokenSTAR:
-            case tokenSLASH:
-                tok = curr;
-                match(t, tok.type);
-                factor(t);
-                eval_binop(tok);
-                break;
-        }
+    while (curr.type == tokenSTAR ||
+           curr.type == tokenSLASH ||
+           curr.type == tokenDBLSTAR
+    ) {
+        tok = curr;
+        match(t, tok.type);
+        factor(t);
+        eval_binop(tok);
     }
 }
 

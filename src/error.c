@@ -7,7 +7,7 @@
 
 void fatal(char *m)
 {
-    stack_delete();
+    stack_clear();
     fprintf(stderr, "%s\n", m);
     exit(1);
 }

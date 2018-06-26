@@ -90,6 +90,12 @@ int eval_add(StackEntry left, StackEntry right);
 int eval_sub(StackEntry left, StackEntry right);
 int eval_mul(StackEntry left, StackEntry right);
 int eval_div(StackEntry left, StackEntry right);
+int eval_pow(StackEntry left, StackEntry right);
+
+int eval_mod(StackEntry left, StackEntry right);
+int eval_bwand(StackEntry left, StackEntry right);
+int eval_bwor(StackEntry left, StackEntry right);
+int eval_bwxor(StackEntry left, StackEntry right);
 
 int eval_binop(Token op)
 {
@@ -98,20 +104,26 @@ int eval_binop(Token op)
     StackEntry left = stack[top];
     switch (op.type) {
         case tokenPLUS:
-            eval_add(left, right);
-            break;
+            return eval_add(left, right);
         case tokenMINUS:
-            eval_sub(left, right);
+            return eval_sub(left, right);
         case tokenSTAR:
-            eval_mul(left, right);
-            break;
+            return eval_mul(left, right);
         case tokenSLASH:
-            eval_div(left, right);
-            break;
+            return eval_div(left, right);
+        case tokenPERCENT:
+            return eval_mod(left, right);
+        case tokenAMPERSAND:
+            return eval_bwand(left, right);
+        case tokenPIPE:
+            return eval_bwor(left, right);
+        case tokenUPCARAT:
+            return eval_bwxor(left, right);
+        case tokenDBLSTAR:
+            return eval_pow(left, right);
         default:
             return 0;
     }
-    return 1;
 }
 
 int eval_add(StackEntry left, StackEntry right)
@@ -214,20 +226,12 @@ int eval_div(StackEntry left, StackEntry right)
         }
 
         if (right.type != tokenFLOAT) {
-            if (right.ival == 0) {
-                e.type = tokenERROR;
-                e.err = "division by zero";
-                stack_push(e);
-                return 0;
-            }
+            if (right.ival == 0)
+                return stack_error("division by zero");
             r = right.ival;
         } else {
-            if (right.fval == 0) {
-                e.type = tokenERROR;
-                e.err = "division by zero";
-                stack_push(e);
-                return 0;
-            }
+            if (right.fval == 0)
+                return stack_error("division by zero");
             r = right.fval;
         }
 
@@ -236,13 +240,89 @@ int eval_div(StackEntry left, StackEntry right)
         stack[top] = e;
     } else {
         e.type = tokenINT;
-        if (right.ival == 0) {
-            e.type = tokenERROR;
-            e.err = "division by zero";
-            stack_push(e);
-            return 0;
-        }
+        if (right.ival == 0)
+            return stack_error("division by zero");
         e.ival = left.ival / right.ival;
+        stack[top] = e;
+    }
+    return 1;
+}
+
+int eval_mod(StackEntry left, StackEntry right)
+{
+    StackEntry res;
+    if (left.type == tokenINT && right.type == tokenINT) {
+        if (right.ival == 0)
+            return stack_error("division by zero");
+        res.type = tokenINT;
+        res.ival = left.ival % right.ival;
+        stack[top] = res;
+        return 1;
+    }
+    return stack_error("invalid arguments for modulo");
+}
+
+int eval_bwand(StackEntry left, StackEntry right)
+{
+    StackEntry res;
+    if (left.type == tokenINT && right.type == tokenINT) {
+        res.type = tokenINT;
+        res.ival = left.ival & right.ival;
+        stack[top] = res;
+        return 1;
+    }
+    return stack_error("invalid arguments for bitwise and");
+}
+
+int eval_bwor(StackEntry left, StackEntry right)
+{
+    StackEntry res;
+    if (left.type == tokenINT && right.type == tokenINT) {
+        res.type = tokenINT;
+        res.ival = left.ival | right.ival;
+        stack[top] = res;
+        return 1;
+    }
+    return stack_error("invalid arguments for bitwise or");
+}
+
+int eval_bwxor(StackEntry left, StackEntry right)
+{
+    StackEntry res;
+    if (left.type == tokenINT && right.type == tokenINT) {
+        res.type = tokenINT;
+        res.ival = left.ival ^ right.ival;
+        stack[top] = res;
+        return 1;
+    }
+    return stack_error("invalid arguments for bitwise xor");
+}
+
+int eval_pow(StackEntry left, StackEntry right)
+{
+    printf("Entering pow...\n");
+    StackEntry e;
+    int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
+    if (frac) {
+        double l, r;
+        if (left.type != tokenFLOAT) {
+            l = left.ival;
+        } else {
+            l = left.fval;
+        }
+
+        if (right.type != tokenFLOAT) {
+            r = right.ival;
+        } else {
+            r = right.fval;
+        }
+
+        e.type = tokenFLOAT;
+        e.fval = pow(l, r);
+        stack[top] = e;
+    } else {
+        e.type = tokenINT;
+        e.ival = (int)pow(left.ival, right.ival);
         stack[top] = e;
     }
     return 1;
@@ -264,11 +344,6 @@ int stack_pop()
         return --top;
     }
     return -1;
-}
-
-void stack_clear()
-{
-    top = -1;
 }
 
 void stack_print()
@@ -294,11 +369,19 @@ void stack_print()
     }
 }
 
-void stack_delete()
+void stack_clear()
 {
     int numEntries = top + 1;
     for (int i = 0; i < numEntries; i++) {
         if (stack[i].type == tokenIDENT)
             free(stack[i].ident);
     }
+    top = -1;
+}
+
+int stack_error(char *msg)
+{
+    fprintf(stderr, "%s\n", msg);
+    stack_clear();
+    return 0;
 }

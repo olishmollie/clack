@@ -25,6 +25,7 @@ typedef enum TokenType {
    tokenPERCENT,
    tokenAMPERSAND,
    tokenPIPE,
+   tokenUPCARAT,
    tokenLCARAT,
    tokenLSHIFT,
    tokenIDENT,
