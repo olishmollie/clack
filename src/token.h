@@ -32,9 +32,9 @@ typedef enum TokenType {
    tokenSPACE
 } TokenType;
 
-Token NewToken(int type, char *val);
+Token new_token(int type, char *val);
 
-void TokenPrint(Token t);
-void TokenDelete(Token t);
+void token_print(Token t);
+void token_delete(Token t);
 
 #endif

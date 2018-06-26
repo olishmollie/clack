@@ -12,7 +12,7 @@ void testToken(char *input, TokenType type, char *tokenType)
     assert(tok.type == type);
     assert(strcmp(tok.val, input) == 0);
     free(t);
-    TokenDelete(tok);
+    token_delete(tok);
     printf("Test passed.\n\n");
 }
 

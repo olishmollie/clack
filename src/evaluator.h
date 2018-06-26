@@ -22,4 +22,6 @@ int stack_pop();
 void stack_clear();
 void stack_print();
 
+void stack_delete();
+
 #endif

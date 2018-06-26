@@ -1,4 +1,6 @@
+#include "global.h"
 #include "evaluator.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -7,16 +9,27 @@
 StackEntry stack[STACKSIZE];
 int top = -1;
 
+/* ********** BUILTINS ********* */
 int eval_ln();
 int eval_log();
+int eval_ans();
 
 int eval_builtin(Token builtin)
 {
+    int res = 0;
     if (strcmp(builtin.val, "ln") == 0) {
-        return eval_ln();
-    } else if (strcmp(builtin.val, "log") == 0)
-        return eval_log();
-    return 0;
+        token_delete(builtin);
+        res = eval_ln();
+    }
+    else if (strcmp(builtin.val, "log") == 0) {
+        token_delete(builtin);
+        res = eval_log();
+    }
+    else if (strcmp(builtin.val, "ans") == 0) {
+        token_delete(builtin);
+        res = eval_ans();
+    }
+    return res;
 }
 
 int eval_ln()
@@ -47,6 +60,32 @@ int eval_log()
     return 1;
 }
 
+int eval_ans()
+{
+    StackEntry arg = stack[top];
+    int numEntries = top+1;
+    if (arg.type != tokenINT || arg.ival >= numEntries || arg.ival <= 0) {
+        fatal("invalid ans argument");
+    }
+    StackEntry e;
+    int offset = top - arg.ival;
+    printf("offset = %d\n", offset);
+    e.type = stack[offset].type;
+    switch (e.type) {
+    case tokenINT:
+        e.ival = stack[offset].ival;
+        break;
+    case tokenFLOAT:
+        e.fval = stack[offset].fval;
+        break;
+    default:
+        return 0;
+    }
+    stack[top] = e;
+    return 1;
+}
+
+/* ********** BINOPS ********** */
 int eval_add(StackEntry left, StackEntry right);
 int eval_sub(StackEntry left, StackEntry right);
 int eval_mul(StackEntry left, StackEntry right);
@@ -209,7 +248,7 @@ int eval_div(StackEntry left, StackEntry right)
     return 1;
 }
 
-
+/* ********** STACK OPS ********** */
 int stack_push(StackEntry e)
 {
     if (top < STACKSIZE-1) {
@@ -252,5 +291,14 @@ void stack_print()
         default:
             ;
         }
+    }
+}
+
+void stack_delete()
+{
+    int numEntries = top + 1;
+    for (int i = 0; i < numEntries; i++) {
+        if (stack[i].type == tokenIDENT)
+            free(stack[i].ident);
     }
 }

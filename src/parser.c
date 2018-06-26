@@ -1,3 +1,4 @@
+#include "global.h"
 #include "parser.h"
 #include "evaluator.h"
 #include "tokenizer.h"
@@ -25,16 +26,15 @@ void expr(Tokenizer *t)
 {
     term(t);
     Token tok;
-    while (curr.type == tokenPLUS || curr.type == tokenMINUS) {
-        switch (curr.type) {
-            case tokenPLUS:
-            case tokenMINUS:
-                tok = curr;
-                match(t, tok.type);
-                term(t);
-                eval_binop(tok);
-                break;
-        }
+    while (curr.type == tokenPLUS ||
+           curr.type == tokenMINUS ||
+           curr.type == tokenAMPERSAND || /* TODO: implement bitwise ops */
+           curr.type == tokenPIPE
+    ) {
+        tok = curr;
+        match(t, tok.type);
+        term(t);
+        eval_binop(tok);
     }
 }
 
@@ -62,17 +62,19 @@ void factor(Tokenizer* t)
     switch (curr.type) {
     case tokenINT:
         tok = curr;
-        match(t, tokenINT);
         e.type = tok.type;
         e.ival = atoi(tok.val);
+        match(t, tokenINT);
         stack_push(e);
+        token_delete(tok);
         break;
     case tokenFLOAT:
         tok = curr;
-        match(t, tokenFLOAT);
         e.type = tok.type;
         e.fval = atof(tok.val);
+        match(t, tokenFLOAT);
         stack_push(e);
+        token_delete(tok);
         break;
     case tokenBUILTIN:
         tok = curr;

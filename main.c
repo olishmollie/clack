@@ -1,3 +1,4 @@
+#include "src/global.h"
 #include "src/parser.h"
 #include "src/token.h"
 

@@ -1,3 +1,4 @@
+#include "global.h"
 #include "tokenizer.h"
 #include "error.h"
 
@@ -35,8 +36,8 @@ void TokenizerRun(Tokenizer *t)
 {
     Token tok = lexan(t);
     while (tok.type != tokenEOF) {
-        TokenPrint(tok);
-        TokenDelete(tok);
+        token_print(tok);
+        token_delete(tok);
         tok = lexan(t);
     }
 }
@@ -47,7 +48,7 @@ Token lexan(Tokenizer *t)
     char c = next(t);
 
     if (c < 0)
-        return NewToken(tokenEOF, "NONE");
+        return new_token(tokenEOF, "NONE");
     else if (isdigit(c))
         return lexDigit(t);
     else if (isalnum(c))
@@ -109,6 +110,8 @@ Token lexIdent(Tokenizer *t)
         res = produce(t, tokenBUILTIN);
     else if (strcmp(val, "ln") == 0)
         res = produce(t, tokenBUILTIN);
+    else if (strcmp(val, "ans") == 0)
+        res = produce(t, tokenBUILTIN);
     else res = produce(t, tokenIDENT);
     free(val);
     return res;
@@ -153,7 +156,7 @@ Token produce(Tokenizer *t, TokenType type)
 {
     char *val = currVal(t);
     t->start = t->pos;
-    return NewToken(type, val);
+    return new_token(type, val);
 }
 
 int accept(Tokenizer *t, char *valid)
@@ -207,7 +210,7 @@ Token lexError(Tokenizer *t, char *msg)
     m[len] = '\0';
     next(t);
     t->start = t->pos;
-    return NewToken(tokenERROR, m);
+    return new_token(tokenERROR, m);
 }
 
 void TokenizerDelete(Tokenizer *t)

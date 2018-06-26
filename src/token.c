@@ -1,6 +1,7 @@
+#include "global.h"
 #include "token.h"
 
-Token NewToken(int type, char *val)
+Token new_token(int type, char *val)
 {
     Token t;
     t.type = type;
@@ -8,12 +9,12 @@ Token NewToken(int type, char *val)
     return t;
 }
 
-void TokenPrint(Token t)
+void token_print(Token t)
 {
     printf("<type: %d, val: \"%s\" >\n", t.type, t.val);
 }
 
-void TokenDelete(Token t)
+void token_delete(Token t)
 {
     free(t.val);
 }
