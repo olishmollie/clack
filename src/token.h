@@ -14,6 +14,7 @@ typedef struct Token {
 typedef enum TokenType {
    tokenEOF,
    tokenERROR,
+   tokenEQUAL,
    tokenINT,
    tokenFLOAT,
    tokenRAT,

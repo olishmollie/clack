@@ -1,4 +1,3 @@
-#include "src/tokenizer.h"
 #include "src/parser.h"
 #include "src/token.h"
 
@@ -14,9 +13,7 @@ int main(int argc, char** argv) {
   while (1) {
     char *input = readline("fig> ");
     add_history(input);
-    Tokenizer *t = tokenizer_init(input);
-    tokenizer_run(t);
-    tokenizer_delete(t);
+    parse(input);
   }
 
   return 0;

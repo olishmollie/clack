@@ -10,7 +10,7 @@ typedef struct StackEntry {
     union {
         int ival;
         double fval;
-        char *ident;
+        char ident[MAXLEN];
         char *err;
     };
 } StackEntry;

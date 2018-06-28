@@ -119,6 +119,8 @@ Token lexPunct(Tokenizer *t)
         return produce(t, tokenUPCARAT);
     case '%':
         return produce(t, tokenPERCENT);
+    case '=':
+        return produce(t, tokenEQUAL);
     case '*':
         if (peek(t) == '*') {
             next(t);

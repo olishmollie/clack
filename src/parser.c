@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "evaluator.h"
+#include "symtable.h"
 #include "tokenizer.h"
 #include "error.h"
 
@@ -8,6 +9,8 @@
 Token curr;
 int neg = 1;
 
+void stmt(Tokenizer *t);
+void assignment(Tokenizer *t);
 void expr(Tokenizer *t);
 void term(Tokenizer *t);
 void factor(Tokenizer *t);
@@ -17,9 +20,32 @@ void parse(char *input)
 {
     Tokenizer *t = tokenizer_init(input);
     curr = lexan(t);
-    expr(t);
+    stmt(t);
     stack_print();
     tokenizer_delete(t);
+}
+
+void stmt(Tokenizer *t)
+{
+    if (strcmp(curr.val, "let") == 0) {
+        return assignment(t);
+    }
+    return expr(t);
+}
+
+void assignment(Tokenizer *t)
+{
+    StackEntry var;
+    match(t, tokenIDENT); /* let token */
+    var.type = tokenIDENT;
+    strcpy(var.ident, curr.val);
+    symtable_insert(curr.val);
+    match(t, tokenIDENT);
+    stack_push(var);
+    Token eq = curr;
+    match(t, tokenEQUAL);
+    expr(t);
+    eval_binop(eq);
 }
 
 void expr(Tokenizer *t)
@@ -58,6 +84,8 @@ void factor(Tokenizer* t)
 {
     StackEntry e;
     Token tok;
+    char *name;
+    int idx;
     switch (curr.type) {
     case tokenPLUS:
     case tokenMINUS:
@@ -88,6 +116,27 @@ void factor(Tokenizer* t)
         expr(t);
         match(t, tokenRPAREN);
         break;
+    case tokenIDENT:
+        name = curr.val;
+        idx = symtable_lookup(name);
+        match(t, tokenIDENT);
+        if (idx >= 0) {
+            e.type = symtable[idx].type;
+            switch (e.type) {
+            case tokenINT:
+                e.ival = symtable[idx].ival;
+                break;
+            case tokenFLOAT:
+                e.fval = symtable[idx].fval;
+                break;
+            default:
+                fatal("unknown data type for ident");
+            }
+            stack_push(e);
+        } else fatal("reference error");
+        break;
+    default:
+        stack_error("bad factor syntax");
     }
 }
 

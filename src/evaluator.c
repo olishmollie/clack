@@ -1,5 +1,6 @@
 #include "evaluator.h"
 #include "error.h"
+#include "symtable.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +20,8 @@ int eval_mod(StackEntry left, StackEntry right);
 int eval_bwand(StackEntry left, StackEntry right);
 int eval_bwor(StackEntry left, StackEntry right);
 int eval_bwxor(StackEntry left, StackEntry right);
+
+int eval_assign(StackEntry left, StackEntry right);
 
 int eval_binop(Token op)
 {
@@ -44,6 +47,8 @@ int eval_binop(Token op)
             return eval_bwxor(left, right);
         case tokenDBLSTAR:
             return eval_pow(left, right);
+        case tokenEQUAL:
+            return eval_assign(left, right);
         default:
             return 0;
     }
@@ -250,6 +255,27 @@ int eval_pow(StackEntry left, StackEntry right)
     return 1;
 }
 
+int eval_assign(StackEntry left, StackEntry right)
+{
+    StackEntry e;
+    if (left.type != tokenIDENT)
+        return stack_error("invalid use of assignment");
+    int idx = symtable_lookup(left.ident);
+    symtable[idx].type = right.type;
+    switch (right.type) {
+    case tokenINT:
+        symtable[idx].ival = right.ival;
+        break;
+    case tokenFLOAT:
+        symtable[idx].fval = right.fval;
+        break;
+    default:
+        return stack_error("unknown data type for assignment");
+    }
+    stack_pop();
+    return 1;
+}
+
 /* ********** STACK OPS ********** */
 int stack_push(StackEntry e)
 {
@@ -293,11 +319,6 @@ void stack_print()
 
 void stack_clear()
 {
-    int numEntries = top + 1;
-    for (int i = 0; i < numEntries; i++) {
-        if (stack[i].type == tokenIDENT)
-            free(stack[i].ident);
-    }
     top = -1;
 }
 
