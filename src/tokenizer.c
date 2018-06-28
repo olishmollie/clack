@@ -5,20 +5,6 @@
 #include <string.h>
 #include <ctype.h>
 
-Token lexan();
-void skipWhitespace();
-Token lexDigit();
-Token lexIdent();
-Token lexPunct();
-Token produce(TokenType type);
-int accept(char *valid);
-void acceptRun(char *valid);
-char peek();
-char next();
-void ignore();
-void backup();
-Token lexError(char *msg);
-
 char input[BSIZE];
 int start;
 int pos;
@@ -42,6 +28,76 @@ void tokenizer_run()
     }
 }
 
+Token produce(TokenType type)
+{
+    int len = pos - start;
+    Token tok = token_new(type, &input[start], len);
+    start = pos;
+    return tok;
+}
+
+char next()
+{
+    char next = input[pos++];
+    if (next) {
+        return next;
+    }
+    return -1;
+}
+
+void backup()
+{
+    pos--;
+}
+
+char peek()
+{
+    char c = next();
+    backup();
+    return c;
+}
+
+void ignore()
+{
+    start = ++pos;
+}
+
+Token lexError(char *msg)
+{
+    int inputlen = strlen(msg);
+    next();
+    start = pos;
+    return token_new(tokenERROR, msg, inputlen);
+}
+
+int accept(char *valid)
+{
+    if (strchr(valid, next())) {
+        return 1;
+    }
+    backup();
+    return 0;
+}
+
+void acceptRun(char *valid)
+{
+    while (strchr(valid, next())) {
+        ;
+    }
+    backup();
+}
+
+void skipWhitespace()
+{
+    while (isspace(input[pos])) {
+        ignore();
+    }
+}
+
+Token lexDigit();
+Token lexIdent();
+Token lexPunct();
+
 Token lexan()
 {
     skipWhitespace();
@@ -57,13 +113,6 @@ Token lexan()
         return lexPunct();
 
     return lexError("illegal token");
-}
-
-void skipWhitespace()
-{
-    while (isspace(input[pos])) {
-        ignore();
-    }
 }
 
 Token lexDigit()
@@ -136,63 +185,4 @@ Token lexPunct()
         return produce(tokenLCARAT);
     }
     return lexError("unknown punctuation");
-}
-
-Token produce(TokenType type)
-{
-    int len = pos - start;
-    Token tok = token_new(type, &input[start], len);
-    start = pos;
-    return tok;
-}
-
-int accept(char *valid)
-{
-    if (strchr(valid, next())) {
-        return 1;
-    }
-    backup();
-    return 0;
-}
-
-void acceptRun(char *valid)
-{
-    while (strchr(valid, next())) {
-        ;
-    }
-    backup();
-}
-
-char peek()
-{
-    char c = next();
-    backup();
-    return c;
-}
-
-char next()
-{
-    char next = input[pos++];
-    if (next) {
-        return next;
-    }
-    return -1;
-}
-
-void ignore()
-{
-    start = ++pos;
-}
-
-void backup()
-{
-    pos--;
-}
-
-Token lexError(char *msg)
-{
-    int inputlen = strlen(msg);
-    next();
-    start = pos;
-    return token_new(tokenERROR, msg, inputlen);
 }
