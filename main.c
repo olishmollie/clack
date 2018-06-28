@@ -2,8 +2,7 @@
 #include "src/parser.h"
 #include "src/token.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <editline/readline.h>
 
 int main(int argc, char** argv) {
@@ -11,8 +10,13 @@ int main(int argc, char** argv) {
   puts("Fig Version 0.0.3");
   puts("Press Ctrl+c to Exit\n");
 
+  char *input;
   while (1) {
     char *input = readline("fig> ");
+    if (strcmp(input, "exit") == 0) {
+      free(input);
+      break;
+    }
     add_history(input);
     parse(input);
     free(input);
