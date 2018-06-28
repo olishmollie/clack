@@ -133,7 +133,7 @@ void factor(Tokenizer* t)
                 fatal("unknown data type for ident");
             }
             stack_push(e);
-        } else fatal("reference error");
+        } else stack_error("reference error");
         break;
     default:
         stack_error("bad factor syntax");

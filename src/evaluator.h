@@ -15,6 +15,9 @@ typedef struct StackEntry {
     };
 } StackEntry;
 
+StackEntry stack[STACKSIZE];
+int top;
+
 int eval_binop(Token op);
 int stack_push(StackEntry e);
 int stack_pop();

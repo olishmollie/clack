@@ -6,7 +6,6 @@
 #include <string.h>
 #include <math.h>
 
-StackEntry stack[STACKSIZE];
 int top = -1;
 
 /* ********** BINOPS ********** */
