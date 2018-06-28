@@ -7,11 +7,10 @@
 void testToken(char *input, TokenType type, char *tokenType)
 {
     printf("Testing token %s -- ", tokenType);
-    Tokenizer *t = tokenizer_init(input);
-    Token tok = lexan(t);
+    tokenizer_init(input);
+    Token tok = lexan();
     assert(tok.type == type);
     assert(strcmp(tok.val, input) == 0);
-    tokenizer_delete(t);
     printf("Test passed.\n\n");
 }
 
@@ -23,16 +22,15 @@ typedef struct TokenTest {
 
 void testExpression(char *input, TokenTest key[])
 {
-    Tokenizer *t = tokenizer_init(input);
     Token tok;
     int i;
-    for (i = 0, tok = lexan(t); tok.type != tokenEOF; i++, tok = lexan(t)) {
+    tokenizer_init(input);
+    for (i = 0, tok = lexan(); tok.type != tokenEOF; i++, tok = lexan()) {
         printf("Testing %s -- ", key[i].typeName);
         assert(tok.type == key[i].type);
         assert(strcmp(tok.val, key[i].val) == 0);
         printf("Test passed.\n\n");
     }
-    tokenizer_delete(t);
 }
 
 int main(void)

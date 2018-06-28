@@ -5,19 +5,9 @@
 
 #include "token.h"
 
-typedef struct Tokenizer {
-    char *input;
-    int len;
-    int start;
-    int pos;
-} Tokenizer;
+void tokenizer_init();
+void tokenizer_run();
 
-Tokenizer *tokenizer_init(char *input);
-
-void tokenizer_run(Tokenizer *t);
-
-Token lexan(Tokenizer *t);
-
-void tokenizer_delete(Tokenizer *t);
+Token lexan();
 
 #endif

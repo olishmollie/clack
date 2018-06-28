@@ -5,80 +5,81 @@
 #include <string.h>
 #include <ctype.h>
 
-Token lexan(Tokenizer *t);
-void skipWhitespace(Tokenizer *t);
-Token lexDigit(Tokenizer *t);
-Token lexIdent(Tokenizer *t);
-Token lexPunct(Tokenizer *t);
-Token produce(Tokenizer *t, TokenType type);
-int accept(Tokenizer *t, char *valid);
-void acceptRun(Tokenizer *t, char *valid);
-char peek(Tokenizer *t);
-char next(Tokenizer *t);
-void ignore(Tokenizer *t);
-void backup(Tokenizer *t);
-Token lexError(Tokenizer *t, char *msg);
+Token lexan();
+void skipWhitespace();
+Token lexDigit();
+Token lexIdent();
+Token lexPunct();
+Token produce(TokenType type);
+int accept(char *valid);
+void acceptRun(char *valid);
+char peek();
+char next();
+void ignore();
+void backup();
+Token lexError(char *msg);
 
-Tokenizer *tokenizer_init(char *input)
+char input[BSIZE];
+int start;
+int pos;
+
+void tokenizer_init(char *in)
 {
-    Tokenizer *t = malloc(sizeof(Tokenizer));
-    if (t == NULL) {
-        fatal("out of memory");
-    }
-    t->start = t->pos = 0;
-    t->input = input;
-    t->len = strlen(input);
-    return t;
+    int len = strlen(in);
+    if (len >= BSIZE)
+        fatal("input too long");
+    strncpy(input, in, len);
+    input[len] = '\0';
+    start = pos = 0;
 }
 
-void tokenizer_run(Tokenizer *t)
+void tokenizer_run()
 {
-    Token tok = lexan(t);
+    Token tok = lexan();
     while (tok.type != tokenEOF) {
         token_print(tok);
-        tok = lexan(t);
+        tok = lexan();
     }
 }
 
-Token lexan(Tokenizer *t)
+Token lexan()
 {
-    skipWhitespace(t);
-    char c = next(t);
+    skipWhitespace();
+    char c = next();
 
     if (c < 0)
         return token_new(tokenEOF, "NONE", 4);
     else if (isdigit(c))
-        return lexDigit(t);
+        return lexDigit();
     else if (isalnum(c))
-        return lexIdent(t);
+        return lexIdent();
     else if (ispunct(c))
-        return lexPunct(t);
+        return lexPunct();
 
-    return lexError(t, "illegal token");
+    return lexError("illegal token");
 }
 
-void skipWhitespace(Tokenizer *t)
+void skipWhitespace()
 {
-    while (isspace(t->input[t->pos])) {
-        t->pos++;
-        ignore(t);
+    while (isspace(input[pos])) {
+        ignore();
     }
 }
 
-Token lexDigit(Tokenizer *t)
+Token lexDigit()
 {
     int frac = 0, rat = 0;
     char *digits = "0123456789";
-    acceptRun(t, digits);
-    if (accept(t, "/")) {
+    acceptRun(digits);
+    if (accept("/")) {
         rat = 1;
-        acceptRun(t, digits);
-    } else if (accept(t, ".")) {
+        acceptRun(digits);
+    } else if (accept(".")) {
         frac = 1;
-        acceptRun(t, digits);
+        acceptRun(digits);
     }
-    if (isalpha(peek(t))) {
-        return lexError(t, "bad number syntax");
+    if (isalpha(peek())) {
+        return lexError("bad number syntax");
     }
 
     TokenType typ;
@@ -86,117 +87,112 @@ Token lexDigit(Tokenizer *t)
     else if (frac) typ = tokenFLOAT;
     else typ = tokenINT;
 
-    return produce(t, typ);
+    return produce(typ);
 }
 
-Token lexIdent(Tokenizer *t)
+Token lexIdent()
 {
     char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    acceptRun(t, alphabet);
-    return produce(t, tokenIDENT);
+    acceptRun(alphabet);
+    return produce(tokenIDENT);
 }
 
-Token lexPunct(Tokenizer *t)
+Token lexPunct()
 {
-    backup(t);
-    char c = next(t);
+    backup();
+    char c = next();
     switch (c) {
     case '+':
-        return produce(t, tokenPLUS);
+        return produce(tokenPLUS);
     case '-':
-        return produce(t, tokenMINUS);
+        return produce(tokenMINUS);
     case '/':
-        return produce(t, tokenSLASH);
+        return produce(tokenSLASH);
     case '&':
-        return produce(t, tokenAMPERSAND);
+        return produce(tokenAMPERSAND);
     case '(':
-        return produce(t, tokenLPAREN);
+        return produce(tokenLPAREN);
     case ')':
-        return produce(t, tokenRPAREN);
+        return produce(tokenRPAREN);
     case '|':
-        return produce(t, tokenPIPE);
+        return produce(tokenPIPE);
     case '^':
-        return produce(t, tokenUPCARAT);
+        return produce(tokenUPCARAT);
     case '%':
-        return produce(t, tokenPERCENT);
+        return produce(tokenPERCENT);
     case '=':
-        return produce(t, tokenEQUAL);
+        return produce(tokenEQUAL);
     case '*':
-        if (peek(t) == '*') {
-            next(t);
-            return produce(t, tokenDBLSTAR);
+        if (peek() == '*') {
+            next();
+            return produce(tokenDBLSTAR);
         }
-        return produce(t, tokenSTAR);
+        return produce(tokenSTAR);
     case '<':
-        if (peek(t) == '<') {
-            next(t);
-            return produce(t, tokenLSHIFT);
+        if (peek() == '<') {
+            next();
+            return produce(tokenLSHIFT);
         }
-        return produce(t, tokenLCARAT);
+        return produce(tokenLCARAT);
     }
-    return lexError(t, "unknown punctuation");
+    return lexError("unknown punctuation");
 }
 
-Token produce(Tokenizer *t, TokenType type)
+Token produce(TokenType type)
 {
-    int len = t->pos - t->start;
-    Token tok = token_new(type, &t->input[t->start], len);
-    t->start = t->pos;
+    int len = pos - start;
+    Token tok = token_new(type, &input[start], len);
+    start = pos;
     return tok;
 }
 
-int accept(Tokenizer *t, char *valid)
+int accept(char *valid)
 {
-    if (strchr(valid, next(t))) {
+    if (strchr(valid, next())) {
         return 1;
     }
-    backup(t);
+    backup();
     return 0;
 }
 
-void acceptRun(Tokenizer *t, char *valid)
+void acceptRun(char *valid)
 {
-    while (strchr(valid, next(t))) {
+    while (strchr(valid, next())) {
         ;
     }
-    backup(t);
+    backup();
 }
 
-char peek(Tokenizer *t)
+char peek()
 {
-    char c = next(t);
-    backup(t);
+    char c = next();
+    backup();
     return c;
 }
 
-char next(Tokenizer *t)
+char next()
 {
-    char next = t->input[t->pos++];
+    char next = input[pos++];
     if (next) {
         return next;
     }
     return -1;
 }
 
-void ignore(Tokenizer *t)
+void ignore()
 {
-    t->start = t->pos;
+    start = ++pos;
 }
 
-void backup(Tokenizer *t)
+void backup()
 {
-    t->pos--;
+    pos--;
 }
 
-Token lexError(Tokenizer *t, char *msg)
+Token lexError(char *msg)
 {
-    int len = strlen(msg);
-    next(t);
-    t->start = t->pos;
-    return token_new(tokenERROR, msg, len);
-}
-
-void tokenizer_delete(Tokenizer *t)
-{
-    free(t);
+    int inputlen = strlen(msg);
+    next();
+    start = pos;
+    return token_new(tokenERROR, msg, inputlen);
 }

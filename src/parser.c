@@ -9,48 +9,47 @@
 Token curr;
 int neg = 1;
 
-void stmt(Tokenizer *t);
-void assignment(Tokenizer *t);
-void expr(Tokenizer *t);
-void term(Tokenizer *t);
-void factor(Tokenizer *t);
-void match(Tokenizer *t, TokenType typ);
+void stmt();
+void assignment();
+void expr();
+void term();
+void factor();
+void match(TokenType typ);
 
 void parse(char *input)
 {
-    Tokenizer *t = tokenizer_init(input);
-    curr = lexan(t);
-    stmt(t);
+    tokenizer_init(input);
+    curr = lexan();
+    stmt();
     stack_print();
-    tokenizer_delete(t);
 }
 
-void stmt(Tokenizer *t)
+void stmt()
 {
     if (strcmp(curr.val, "let") == 0) {
-        return assignment(t);
+        return assignment();
     }
-    return expr(t);
+    return expr();
 }
 
-void assignment(Tokenizer *t)
+void assignment()
 {
     StackEntry var;
-    match(t, tokenIDENT); /* let token */
+    match(tokenIDENT); /* let token */
     var.type = tokenIDENT;
     strcpy(var.ident, curr.val);
     symtable_insert(curr.val);
-    match(t, tokenIDENT);
+    match(tokenIDENT);
     stack_push(var);
     Token eq = curr;
-    match(t, tokenEQUAL);
-    expr(t);
+    match(tokenEQUAL);
+    expr();
     eval_binop(eq);
 }
 
-void expr(Tokenizer *t)
+void expr()
 {
-    term(t);
+    term();
     Token tok;
     while (curr.type == tokenPLUS ||
            curr.type == tokenMINUS ||
@@ -59,28 +58,28 @@ void expr(Tokenizer *t)
            curr.type == tokenPIPE
     ) {
         tok = curr;
-        match(t, tok.type);
-        term(t);
+        match(tok.type);
+        term();
         eval_binop(tok);
     }
 }
 
-void term(Tokenizer *t)
+void term()
 {
-    factor(t);
+    factor();
     Token tok;
     while (curr.type == tokenSTAR ||
            curr.type == tokenSLASH ||
            curr.type == tokenDBLSTAR
     ) {
         tok = curr;
-        match(t, tok.type);
-        factor(t);
+        match(tok.type);
+        factor();
         eval_binop(tok);
     }
 }
 
-void factor(Tokenizer* t)
+void factor()
 {
     StackEntry e;
     Token tok;
@@ -92,14 +91,14 @@ void factor(Tokenizer* t)
         tok = curr;
         if (curr.type == tokenMINUS)
             neg *= -1;
-        match(t, tok.type);
-        factor(t);
+        match(tok.type);
+        factor();
         break;
     case tokenINT:
         tok = curr;
         e.type = tok.type;
         e.ival = neg * atoi(tok.val);
-        match(t, tokenINT);
+        match(tokenINT);
         stack_push(e);
         neg = 1;
         break;
@@ -107,19 +106,19 @@ void factor(Tokenizer* t)
         tok = curr;
         e.type = tok.type;
         e.fval = neg * atof(tok.val);
-        match(t, tokenFLOAT);
+        match(tokenFLOAT);
         stack_push(e);
         neg = 1;
         break;
     case tokenLPAREN:
-        match(t, tokenLPAREN);
-        expr(t);
-        match(t, tokenRPAREN);
+        match(tokenLPAREN);
+        expr();
+        match(tokenRPAREN);
         break;
     case tokenIDENT:
         name = curr.val;
         idx = symtable_lookup(name);
-        match(t, tokenIDENT);
+        match(tokenIDENT);
         if (idx >= 0) {
             e.type = symtable[idx].type;
             switch (e.type) {
@@ -140,9 +139,9 @@ void factor(Tokenizer* t)
     }
 }
 
-void match(Tokenizer *t, TokenType typ)
+void match(TokenType typ)
 {
     if (curr.type == typ)
-        curr = lexan(t);
+        curr = lexan();
     else fatal("whoops");
 }
