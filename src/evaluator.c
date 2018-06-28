@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include <math.h>
 
 int top = -1;
@@ -154,11 +155,11 @@ int eval_div(StackEntry left, StackEntry right)
 
         if (right.type != tokenFLOAT) {
             if (right.ival == 0)
-                return stack_error("division by zero");
+                return stack_errorf("division by zero\n");
             r = right.ival;
         } else {
             if (right.fval == 0)
-                return stack_error("division by zero");
+                return stack_errorf("division by zero\n");
             r = right.fval;
         }
 
@@ -168,7 +169,7 @@ int eval_div(StackEntry left, StackEntry right)
     } else {
         e.type = tokenINT;
         if (right.ival == 0)
-            return stack_error("division by zero");
+            return stack_errorf("division by zero\n");
         e.ival = left.ival / right.ival;
         stack[top] = e;
     }
@@ -180,13 +181,13 @@ int eval_mod(StackEntry left, StackEntry right)
     StackEntry res;
     if (left.type == tokenINT && right.type == tokenINT) {
         if (right.ival == 0)
-            return stack_error("division by zero");
+            return stack_errorf("division by zero\n");
         res.type = tokenINT;
         res.ival = left.ival % right.ival;
         stack[top] = res;
         return 1;
     }
-    return stack_error("invalid arguments for modulo");
+    return stack_errorf("invalid arguments for modulo\n");
 }
 
 int eval_bwand(StackEntry left, StackEntry right)
@@ -198,7 +199,7 @@ int eval_bwand(StackEntry left, StackEntry right)
         stack[top] = res;
         return 1;
     }
-    return stack_error("invalid arguments for bitwise and");
+    return stack_errorf("invalid arguments for bitwise and\n");
 }
 
 int eval_bwor(StackEntry left, StackEntry right)
@@ -210,7 +211,7 @@ int eval_bwor(StackEntry left, StackEntry right)
         stack[top] = res;
         return 1;
     }
-    return stack_error("invalid arguments for bitwise or");
+    return stack_errorf("invalid arguments for bitwise or\n");
 }
 
 int eval_bwxor(StackEntry left, StackEntry right)
@@ -222,7 +223,7 @@ int eval_bwxor(StackEntry left, StackEntry right)
         stack[top] = res;
         return 1;
     }
-    return stack_error("invalid arguments for bitwise xor");
+    return stack_errorf("invalid arguments for bitwise xor\n");
 }
 
 int eval_pow(StackEntry left, StackEntry right)
@@ -258,7 +259,7 @@ int eval_assign(StackEntry left, StackEntry right)
 {
     StackEntry e;
     if (left.type != tokenIDENT)
-        return stack_error("invalid use of assignment");
+        return stack_errorf("invalid use of assignment\n");
     int idx = symtable_lookup(left.ident);
     symtable[idx].type = right.type;
     switch (right.type) {
@@ -269,7 +270,7 @@ int eval_assign(StackEntry left, StackEntry right)
         symtable[idx].fval = right.fval;
         break;
     default:
-        return stack_error("unknown data type for assignment");
+        return stack_errorf("unknown data type for assignment\n");
     }
     stack_pop();
     return 1;
@@ -321,9 +322,12 @@ void stack_clear()
     top = -1;
 }
 
-int stack_error(char *msg)
+int stack_errorf(char *fmt, ...)
 {
-    fprintf(stderr, "%s\n", msg);
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
     stack_clear();
+    va_end(args);
     return 0;
 }

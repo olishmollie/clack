@@ -28,6 +28,12 @@ void tokenizer_run()
     }
 }
 
+void tokenizer_halt()
+{
+    int len = strlen(input);
+    start = pos = len;
+}
+
 Token produce(TokenType type)
 {
     int len = pos - start;
@@ -62,11 +68,11 @@ void ignore()
     start = ++pos;
 }
 
-Token lexError(char *msg)
+Token tokenizer_error(char *msg)
 {
     int inputlen = strlen(msg);
     next();
-    start = pos;
+    tokenizer_halt();
     return token_new(tokenERROR, msg, inputlen);
 }
 
@@ -112,7 +118,7 @@ Token lexan()
     else if (ispunct(c))
         return lexPunct();
 
-    return lexError("illegal token");
+    return tokenizer_error("illegal token");
 }
 
 Token lexDigit()
@@ -128,7 +134,7 @@ Token lexDigit()
         acceptRun(digits);
     }
     if (isalpha(peek())) {
-        return lexError("bad number syntax");
+        return tokenizer_error("bad number syntax");
     }
 
     TokenType typ;
@@ -184,5 +190,5 @@ Token lexPunct()
         }
         return produce(tokenLCARAT);
     }
-    return lexError("unknown punctuation");
+    return tokenizer_error("unknown punctuation");
 }

@@ -1,5 +1,5 @@
-#ifndef _STACk_H
-#define _STACk_H
+#ifndef _STACK_H
+#define _STACK_H
 
 #include "token.h"
 
@@ -24,6 +24,6 @@ int stack_pop();
 void stack_print();
 
 void stack_clear();
-int stack_error();
+int stack_errorf(char *fmt, ...);
 
 #endif

@@ -7,7 +7,7 @@
 
 void tokenizer_init();
 void tokenizer_run();
-
 Token lexan();
+void tokenizer_halt();
 
 #endif

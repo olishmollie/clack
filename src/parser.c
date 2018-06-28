@@ -34,7 +34,7 @@ void stmt()
         if (lookahead.type == tokenEQUAL)
             return assignment();
     }
-    return expr();
+    expr();
 }
 
 void declaration()
@@ -43,7 +43,7 @@ void declaration()
     symtable_insert(curr.val);
     if (lookahead.type == tokenEQUAL)
         assignment();
-    else stack_error("must assign variable upon declaration");
+    else stack_errorf("must assign variable upon declaration\n");
 }
 
 void assignment()
@@ -95,7 +95,7 @@ void factor()
 {
     StackEntry e;
     Token tok;
-    char *name;
+    char name[MAXLEN];
     int idx;
     switch (curr.type) {
     case tokenPLUS:
@@ -128,7 +128,7 @@ void factor()
         match(tokenRPAREN);
         break;
     case tokenIDENT:
-        name = curr.val;
+        strcpy(name, curr.val);
         idx = symtable_lookup(name);
         match(tokenIDENT);
         if (idx >= 0) {
@@ -144,10 +144,13 @@ void factor()
                 fatal("unknown data type for ident");
             }
             stack_push(e);
-        } else stack_error("reference error");
+        } else stack_errorf("reference error: %s is not defined\n", name);
+        break;
+    case tokenERROR:
+        stack_errorf("%s\n", curr.val);
         break;
     default:
-        stack_error("bad factor syntax");
+        stack_errorf("unknown factor token\n");
     }
 }
 
@@ -157,5 +160,5 @@ void match(TokenType typ)
         curr = lookahead;
         lookahead = lexan();
     }
-    else fatal("whoops");
+    else stack_errorf("Expected type %d, got %d\n", typ, curr.type);
 }
