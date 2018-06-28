@@ -6,10 +6,11 @@
 
 #include <string.h>
 
-Token curr;
+Token curr, lookahead;
 int neg = 1;
 
 void stmt();
+void declaration();
 void assignment();
 void expr();
 void term();
@@ -20,25 +21,36 @@ void parse(char *input)
 {
     tokenizer_init(input);
     curr = lexan();
+    lookahead = lexan();
     stmt();
     stack_print();
 }
 
 void stmt()
 {
-    if (strcmp(curr.val, "let") == 0) {
-        return assignment();
+    if (strcmp(curr.val, "let") == 0)
+        return declaration();
+    else if (curr.type == tokenIDENT) {
+        if (lookahead.type == tokenEQUAL)
+            return assignment();
     }
     return expr();
+}
+
+void declaration()
+{
+    match(tokenIDENT);
+    symtable_insert(curr.val);
+    if (lookahead.type == tokenEQUAL)
+        assignment();
+    else stack_error("must assign variable upon declaration");
 }
 
 void assignment()
 {
     StackEntry var;
-    match(tokenIDENT); /* let token */
     var.type = tokenIDENT;
     strcpy(var.ident, curr.val);
-    symtable_insert(curr.val);
     match(tokenIDENT);
     stack_push(var);
     Token eq = curr;
@@ -141,7 +153,9 @@ void factor()
 
 void match(TokenType typ)
 {
-    if (curr.type == typ)
-        curr = lexan();
+    if (curr.type == typ) {
+        curr = lookahead;
+        lookahead = lexan();
+    }
     else fatal("whoops");
 }
