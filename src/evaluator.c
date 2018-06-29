@@ -386,7 +386,6 @@ int eval_pow(StackEntry left, StackEntry right)
 int eval_assign(StackEntry left, StackEntry right)
 {
     StackEntry e;
-    printf("left.ident = %s, right.rval = %d/%d\n", left.ident, right.rval.numer, right.rval.denom);
     if (left.type != tokenIDENT)
         return stack_errorf("invalid use of assignment\n");
     int idx = symtable_lookup(left.ident);
