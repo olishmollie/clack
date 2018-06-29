@@ -57,8 +57,7 @@ int eval_binop(Token op)
 int eval_add(StackEntry left, StackEntry right)
 {
     StackEntry e;
-    int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
-    if (frac) {
+    if (left.type == tokenFLOAT || right.type == tokenFLOAT) {
         double l, r;
         if (left.type != tokenFLOAT) {
             l = left.ival;
@@ -75,6 +74,39 @@ int eval_add(StackEntry left, StackEntry right)
         e.type = tokenFLOAT;
         e.fval = l + r;
         stack[top] = e;
+    } else if (left.type == tokenRAT || right.type == tokenRAT) {
+        if (left.type == tokenRAT && right.type == tokenRAT) {
+            rational r = rat_add(left.rval, right.rval);
+            e.type = tokenRAT;
+            e.rval = r;
+            stack[top] = e;
+        } else if (left.type == tokenRAT) {
+            e.type = tokenFLOAT;
+            switch (right.type) {
+            case tokenINT:
+                e.fval = to_double(left.rval) + right.ival;
+                break;
+            case tokenFLOAT:
+                e.fval = to_double(left.rval) + right.fval;
+                break;
+            default:
+                stack_errorf("unknown token type for right operand %d\n", right.type);
+            }
+            stack[top] = e;
+        } else {
+            e.type = tokenFLOAT;
+            switch (left.type) {
+            case tokenINT:
+                e.fval = left.ival + to_double(right.rval);
+                break;
+            case tokenFLOAT:
+                e.fval = left.fval + to_double(right.rval);
+                break;
+            default:
+                stack_errorf("unknown token type for left operand %d\n", left.type);
+            }
+            stack[top] = e;
+        }
     } else {
         e.type = tokenINT;
         e.ival = left.ival + right.ival;
@@ -86,8 +118,7 @@ int eval_add(StackEntry left, StackEntry right)
 int eval_sub(StackEntry left, StackEntry right)
 {
     StackEntry e;
-    int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
-    if (frac) {
+    if (left.type == tokenFLOAT || right.type == tokenFLOAT) {
         double l, r;
         if (left.type != tokenFLOAT) {
             l = left.ival;
@@ -104,6 +135,39 @@ int eval_sub(StackEntry left, StackEntry right)
         e.type = tokenFLOAT;
         e.fval = l - r;
         stack[top] = e;
+    } else if (left.type == tokenRAT || right.type == tokenRAT) {
+        if (left.type == tokenRAT && right.type == tokenRAT) {
+            rational r = rat_sub(left.rval, right.rval);
+            e.type = tokenRAT;
+            e.rval = r;
+            stack[top] = e;
+        } else if (left.type == tokenRAT) {
+            e.type = tokenFLOAT;
+            switch (right.type) {
+            case tokenINT:
+                e.fval = to_double(left.rval) - right.ival;
+                break;
+            case tokenFLOAT:
+                e.fval = to_double(left.rval) - right.fval;
+                break;
+            default:
+                stack_errorf("unknown token type for right operand %d\n", right.type);
+            }
+            stack[top] = e;
+        } else {
+            e.type = tokenFLOAT;
+            switch (left.type) {
+            case tokenINT:
+                e.fval = left.ival - to_double(right.rval);
+                break;
+            case tokenFLOAT:
+                e.fval = left.fval - to_double(right.rval);
+                break;
+            default:
+                stack_errorf("unknown token type for left operand %d\n", left.type);
+            }
+            stack[top] = e;
+        }
     } else {
         e.type = tokenINT;
         e.ival = left.ival - right.ival;
@@ -115,8 +179,7 @@ int eval_sub(StackEntry left, StackEntry right)
 int eval_mul(StackEntry left, StackEntry right)
 {
     StackEntry e;
-    int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
-    if (frac) {
+    if (left.type == tokenFLOAT || right.type == tokenFLOAT) {
         double l, r;
         if (left.type != tokenFLOAT) {
             l = left.ival;
@@ -133,6 +196,39 @@ int eval_mul(StackEntry left, StackEntry right)
         e.type = tokenFLOAT;
         e.fval = l * r;
         stack[top] = e;
+    } else if (left.type == tokenRAT || right.type == tokenRAT) {
+        if (left.type == tokenRAT && right.type == tokenRAT) {
+            rational r = rat_mul(left.rval, right.rval);
+            e.type = tokenRAT;
+            e.rval = r;
+            stack[top] = e;
+        } else if (left.type == tokenRAT) {
+            e.type = tokenFLOAT;
+            switch (right.type) {
+            case tokenINT:
+                e.fval = to_double(left.rval) * right.ival;
+                break;
+            case tokenFLOAT:
+                e.fval = to_double(left.rval) * right.fval;
+                break;
+            default:
+                stack_errorf("unknown token type for right operand %d\n", right.type);
+            }
+            stack[top] = e;
+        } else {
+            e.type = tokenFLOAT;
+            switch (left.type) {
+            case tokenINT:
+                e.fval = left.ival * to_double(right.rval);
+                break;
+            case tokenFLOAT:
+                e.fval = left.fval * to_double(right.rval);
+                break;
+            default:
+                stack_errorf("unknown token type for left operand %d\n", left.type);
+            }
+            stack[top] = e;
+        }
     } else {
         e.type = tokenINT;
         e.ival = left.ival * right.ival;
@@ -144,8 +240,7 @@ int eval_mul(StackEntry left, StackEntry right)
 int eval_div(StackEntry left, StackEntry right)
 {
     StackEntry e;
-    int frac = (left.type == tokenFLOAT || right.type == tokenFLOAT);
-    if (frac) {
+    if (left.type == tokenFLOAT || right.type == tokenFLOAT) {
         double l, r;
         if (left.type != tokenFLOAT) {
             l = left.ival;
@@ -166,6 +261,39 @@ int eval_div(StackEntry left, StackEntry right)
         e.type = tokenFLOAT;
         e.fval = l / r;
         stack[top] = e;
+    } else if (left.type == tokenRAT || right.type == tokenRAT) {
+        if (left.type == tokenRAT && right.type == tokenRAT) {
+            rational r = rat_div(left.rval, right.rval);
+            e.type = tokenRAT;
+            e.rval = r;
+            stack[top] = e;
+        } else if (left.type == tokenRAT) {
+            e.type = tokenFLOAT;
+            switch (right.type) {
+            case tokenINT:
+                e.fval = to_double(left.rval) / right.ival;
+                break;
+            case tokenFLOAT:
+                e.fval = to_double(left.rval) / right.fval;
+                break;
+            default:
+                stack_errorf("unknown token type for right operand %d\n", right.type);
+            }
+            stack[top] = e;
+        } else {
+            e.type = tokenFLOAT;
+            switch (left.type) {
+            case tokenINT:
+                e.fval = left.ival / to_double(right.rval);
+                break;
+            case tokenFLOAT:
+                e.fval = left.fval / to_double(right.rval);
+                break;
+            default:
+                stack_errorf("unknown token type for left operand %d\n", left.type);
+            }
+            stack[top] = e;
+        }
     } else {
         e.type = tokenINT;
         if (right.ival == 0)
@@ -258,6 +386,7 @@ int eval_pow(StackEntry left, StackEntry right)
 int eval_assign(StackEntry left, StackEntry right)
 {
     StackEntry e;
+    printf("left.ident = %s, right.rval = %d/%d\n", left.ident, right.rval.numer, right.rval.denom);
     if (left.type != tokenIDENT)
         return stack_errorf("invalid use of assignment\n");
     int idx = symtable_lookup(left.ident);
@@ -268,6 +397,9 @@ int eval_assign(StackEntry left, StackEntry right)
         break;
     case tokenFLOAT:
         symtable[idx].fval = right.fval;
+        break;
+    case tokenRAT:
+        symtable[idx].rval = right.rval;
         break;
     default:
         return stack_errorf("unknown data type for assignment\n");
@@ -309,8 +441,9 @@ void stack_print()
         case tokenIDENT:
             printf("%d: %s %s\n", i, stack[i].ident, arrow);
             break;
-        case tokenERROR:
-            printf("%d: %s %s\n", i, stack[i].err, arrow);
+        case tokenRAT:
+            printf("%d: %d/%d %s\n", i, stack[i].rval.numer, stack[i].rval.denom, arrow);
+            break;
         default:
             ;
         }

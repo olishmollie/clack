@@ -8,7 +8,7 @@
 int main(int argc, char** argv) {
 
   puts("Fig Version 0.0.3");
-  puts("Press Ctrl+c to Exit\n");
+  puts("Type 'exit' to quit\n");
 
   char *input;
   while (1) {

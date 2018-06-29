@@ -2,6 +2,7 @@
 #define _STACK_H
 
 #include "token.h"
+#include "rational.h"
 
 #define STACKSIZE 20
 
@@ -10,8 +11,8 @@ typedef struct StackEntry {
     union {
         int ival;
         double fval;
+        rational rval;
         char ident[MAXLEN];
-        char *err;
     };
 } StackEntry;
 

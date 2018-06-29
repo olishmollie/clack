@@ -2,6 +2,7 @@
 #define _SYMTABLE_H
 
 #include "token.h"
+#include "rational.h"
 
 #define TABLESIZE 20
 
@@ -9,8 +10,9 @@ typedef struct SymtableEntry {
     TokenType type;
     char name[MAXLEN];
     union {
-            int ival;
+        int ival;
         double fval;
+        rational rval;
     };
 } SymtableEntry;
 

@@ -122,6 +122,16 @@ void factor()
         stack_push(e);
         neg = 1;
         break;
+    case tokenRAT:
+        tok = curr;
+        e.type = tok.type;
+        e.rval = from_str(curr.val);
+        match(tokenRAT);
+        stack_push(e);
+        neg = 1;
+        if (e.rval.denom == 0)
+            stack_errorf("invalid rational\n");
+        break;
     case tokenLPAREN:
         match(tokenLPAREN);
         expr();
@@ -139,6 +149,9 @@ void factor()
                 break;
             case tokenFLOAT:
                 e.fval = symtable[idx].fval;
+                break;
+            case tokenRAT:
+                e.rval = symtable[idx].rval;
                 break;
             default:
                 fatal("unknown data type for ident");
