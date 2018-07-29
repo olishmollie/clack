@@ -5,15 +5,18 @@
 #include <string.h>
 #include <editline/readline.h>
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
-  puts("Fig Version 0.0.5");
+  puts("Fig Version 0.0.6");
   puts("Type 'exit' to quit\n");
 
   char *input;
-  while (1) {
+  while (1)
+  {
     char *input = readline("fig> ");
-    if (strcmp(input, "exit") == 0) {
+    if (strcmp(input, "exit") == 0)
+    {
       free(input);
       break;
     }
