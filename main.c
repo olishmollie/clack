@@ -8,13 +8,13 @@
 int main(int argc, char **argv)
 {
 
-  puts("Fig Version 0.0.6");
+  puts("clack version 0.0.6");
   puts("Type 'exit' to quit\n");
 
   char *input;
   while (1)
   {
-    char *input = readline("fig> ");
+    char *input = readline("clack> ");
     if (strcmp(input, "exit") == 0)
     {
       free(input);

@@ -1,7 +1,7 @@
-all: fig lextest parsetest
+all: clack lextest parsetest
 
-fig: main.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c
-	cc main.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c -ledit -o bin/fig
+clack: main.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c
+	cc main.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c -ledit -o bin/clack
 
 lextest: test/tokenizer.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c
 	cc test/tokenizer.c src/tokenizer.c src/error.c src/token.c src/parser.c src/evaluator.c src/symtable.c src/rational.c -o test/bin/tokenizer
